@@ -1,3 +1,15 @@
+models
+*.egg-info
+__pycache__
+build
+dist
+tests
+tempCodeRunnerFile.py
+test*
+.vscode
+teste01.py
+teste.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
