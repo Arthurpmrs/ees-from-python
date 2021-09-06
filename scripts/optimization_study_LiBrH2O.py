@@ -1,5 +1,8 @@
 import os
 import sys
+import win32ui
+import dde
+import traceback
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 import json
 from icecream import ic
@@ -8,7 +11,7 @@ from ees.optimization_ga import GAOptimizationStudy
 from ees.optimization_graphs import OptGraph
 
 
-def main(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
+def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
     """Run one optimization case."""
     eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
     eesopt.set_decision_variables(decision_variables)
@@ -33,7 +36,8 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
     up = tuple([v[1] for _, v in decision_variables.items()])
 
     params = {
-        "population": [10, 15, 25, 50, 100, 200],
+        # "population": [10, 15, 25, 50, 100, 200],
+        "population": [None, None, None, None, None, 200],
         "crossover_rates": [
             {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}},
             {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}},
@@ -67,29 +71,71 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
             {'method': 'selRoulette', 'params': {}},
         ]
     }
+    target_variable = "EUF_sys"
+    target_display = r"$ EUF_{sys} $"
+    # target_variable = "psi_sys_1"
+    # target_display = r"$ \psi_{sys} $"
+    # target_variable = "m_dot[38]"
+    # target_display = r"$ \dot{m}_{38} $"
     for param, values in params.items():
         results = {}
         key = param.split("_")[0]
-        for value in values:
+        for i, value in enumerate(values):
+            if value == None:
+                continue
             config = {**base_config}
             config.update({key: value})
-            eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
-            eesopt.set_decision_variables(decision_variables)
-            eesopt.set_target_variable("EUF_sys", r"$ EUF_{sys} $")
-            # eesopt.set_target_variable("psi_sys_1", r"$ \psi_{sys} $")
-            # eesopt.set_target_variable("m_dot[38]", r"$ \dot{m}_{38} $")
-            result = eesopt.execute_GA(config)
-            results.update({
-                result["run_ID"]: {
-                    "best_target": result["best_target"],
-                    "best_individual": result["best_individual"],
-                    "generations": result["generations"],
-                    "evolution_time": result["evolution_time"],
-                    "config": result["config"],
-                    "best_output": result["best_output"],
+            filtered_result = {}
+            # print("PRIMEIRO")
+            try:
+                eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
+                eesopt.set_decision_variables(decision_variables)
+                eesopt.set_target_variable(target_variable, target_display)
+                result = eesopt.execute_GA(config)
+                filtered_result = {
+                    result["run_ID"]: {
+                        "best_target": result["best_target"],
+                        "best_individual": result["best_individual"],
+                        "generations": result["generations"],
+                        "evolution_time": result["evolution_time"],
+                        "config": result["config"],
+                        "best_output": result["best_output"],
+                    }
                 }
-            })
+            except KeyboardInterrupt:
+                eesopt.close()
+            except dde.error as e:
+                eesopt.close()
+                error_filename = f"error_at_{target_variable}_{param}_n-{i + 1}.txt"
+                print(e)
+                traceback.print_exc()
+                tb = traceback.TracebackException.from_exception(e)
+                print(tb)
+                with open(os.path.join(opt_analysis_folder, error_filename), 'w') as txtfile:
+                    txtfile.write(str(tb) + '\n' + str(e) + '\n' + str(config) + '\n' + "RERUN!!")
+
+            # print("segundo")
+            if filtered_result != {}:
+                results.update(filtered_result)
+
+            # Save run result to file
+            folderpath = os.path.join(opt_analysis_folder, target_variable, param)
+            if not os.path.exists(folderpath):
+                os.makedirs(folderpath)
+            filename = f"result_run_{i + 1}.json"
+            filepath = os.path.join(folderpath, filename)
+
+            filename_readable = f"result-readable_run_{i + 1}.json"
+            filepath_readable = os.path.join(folderpath, filename_readable)
+
+            with open(filepath, 'w') as jsonfile:
+                json.dump(filtered_result, jsonfile)
+
+            with open(filepath_readable, 'w') as jsonfile:
+                json.dump(filtered_result, jsonfile)
+
             del eesopt
+
         print(" ")
         print(f"Resultados de: {param}")
         targets = []
@@ -107,12 +153,11 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
         r_json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_readable_analysis.json")
         with open(r_json_filename, 'w') as jsonfile:
             json.dump(results, jsonfile, indent=4)
-        break
 
 
-if __name__ == "__main__":
+def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-    EES_model = r'C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O.EES'
+    EES_model = r'C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O_opt.EES'
 
     inputs = {
         'm_dot[9]': 0.0226,
@@ -161,7 +206,7 @@ if __name__ == "__main__":
                'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh']
 
     decision_variables = {
-        'm_dot[9]': (0.005, 0.035),
+        # 'm_dot[9]': (0.005, 0.035),
         'T[10]': (35, 44),
         'T[19]': (35, 48),
         'T[13]': (75, 90),
@@ -173,12 +218,16 @@ if __name__ == "__main__":
 
     base_config = {
         'seed': 5,
-        'population': 50,
+        'population': 25,
         'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
         'mutation': {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
         'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
-        'max_generation': 40,
+        'max_generation': 35,
         'cvrg_tolerance': 1e-5
     }
-    main(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+
+
+if __name__ == "__main__":
+    main()

@@ -65,6 +65,7 @@ class OptimizationStudy:
         self.is_ready['decision_variables'] = True
 
     def setup_DDE(self):
+        # TO-DO: Se existir uma janela do EES aberta, feche como: taskkill /F /IM EES.exe
         self.log(f">> Abrindo o EES em {self.EES_exe}")
         subprocess.Popen([self.EES_exe, '/hide'], shell=True, close_fds=True).pid
         time.sleep(15)
@@ -93,9 +94,13 @@ class OptimizationStudy:
             if variable <= 0:
                 individual[i] = (limits[0] + limits[1]) / 2
 
-        self.prepare_inputs(individual)
-        self.connector.Exec('[SOLVE]')
-        target_variable = self.get_output()
+        try:
+            self.prepare_inputs(individual)
+            self.connector.Exec('[SOLVE]')
+            target_variable = self.get_output()
+        except dde.error as e:
+            self.log(f"Um erro ocorreu com o EES ({e}). O resultado para essa rodada será considerado 0.")
+            target_variable = 0
         return (target_variable, )
 
     def prepare_inputs(self, individual):
@@ -118,9 +123,15 @@ class OptimizationStudy:
         error_has_ocorred = False
         for chunk in output_chunks:
             output_variables = " ".join([str(var) for var in chunk])
-            self.connector.Exec(f"[Export \'Clipboard\' {output_variables}]")
-            result = pyperclip.paste()
-            self.connector.Exec(f"[ClearClipboard]")
+            try:
+                self.connector.Exec(f"[Export \'Clipboard\' {output_variables}]")
+                result = pyperclip.paste()
+                self.connector.Exec(f"[ClearClipboard]")
+            except dde.error as e:
+                self.log(f"Um erro ocorreu com o EES ({e}). O resultado para essa rodada será considerado 0.")
+                result = "error has ocorred"
+                pyperclip.copy('')
+
             result = result.replace("\t", " ").replace("\r\n", " ")
             results.extend(result.split(" "))
 
@@ -134,7 +145,7 @@ class OptimizationStudy:
             self.output_dict.update({output: value})
 
         if error_has_ocorred:
-            print("O EES não exportou valores corretos. Algum erro aconteceu!")
+            self.log("O EES não exportou valores corretos. Algum erro aconteceu!")
             self.output_dict.update({self.target_variable: 0})
 
         return self.output_dict[self.target_variable]

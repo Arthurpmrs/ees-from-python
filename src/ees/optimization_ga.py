@@ -3,6 +3,7 @@ import time
 import math
 import json
 import datetime
+import traceback
 import random
 import win32ui
 import dde
@@ -69,6 +70,10 @@ class GAOptimizationStudy(OptimizationStudy):
             result = self.optimize(config)
             del creator.Individual
             del creator.FitnessMax
+        except Exception as e:
+            self.logger.exception(e)
+            tb = traceback.format_exc()
+            print(tb)
         finally:
             self.close()
         return result
@@ -93,6 +98,7 @@ class GAOptimizationStudy(OptimizationStudy):
         self.log("---- Início da evolução ----")
         # Evaluate the entire population
         # fitnesses = list(map(self.toolbox.evaluate, pop))
+
         fitnesses = []
         for i, ind in enumerate(pop):
             result = self.toolbox.evaluate(ind)
