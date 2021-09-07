@@ -3,6 +3,7 @@ import time
 import math
 import json
 import datetime
+import traceback
 import random
 import win32ui
 import dde
@@ -62,6 +63,7 @@ class GAOptimizationStudy(OptimizationStudy):
         self.is_ready['optimizer'] = True
 
     def execute_GA(self, config):
+        result = {}
         try:
             self.setup_DDE()
             self.setup_optimizer(config)
@@ -69,6 +71,10 @@ class GAOptimizationStudy(OptimizationStudy):
             result = self.optimize(config)
             del creator.Individual
             del creator.FitnessMax
+        except Exception as e:
+            self.logger.exception(e)
+            self.log(">> Erro: Algo de errado ocorreu. Está run está comprometida.")
+            self.log(traceback.format_exc())
         finally:
             self.close()
         return result
@@ -91,13 +97,16 @@ class GAOptimizationStudy(OptimizationStudy):
 
         # Starting Evolution
         self.log("---- Início da evolução ----")
+
         # Evaluate the entire population
-        # fitnesses = list(map(self.toolbox.evaluate, pop))
         fitnesses = []
         for i, ind in enumerate(pop):
             result = self.toolbox.evaluate(ind)
-            print(f"Nº: {i + 1} | {self.target_variable}: {result[0]}")
-            print(f"Ind: {[f'{i:.4f}' for i in ind]}")
+            self.log(f"Nº: {i + 1} | {self.target_variable}: {result[0]}", verbose=config["verbose"])
+            self.log(
+                f"Ind: {[f'{var}: {i:.4f}' for i, var in zip(ind, self.decision_variables.keys())]}",
+                verbose=config["verbose"]
+            )
             fitnesses.append(result)
 
         for ind, fit in zip(pop, fitnesses):
@@ -110,6 +119,7 @@ class GAOptimizationStudy(OptimizationStudy):
 
         # Variable keeping track of the number of generations
         g = 0
+        rates = []
         gen_history = []
         fits_old = 0
         max_same_target_count = 5
@@ -146,12 +156,14 @@ class GAOptimizationStudy(OptimizationStudy):
 
             # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            # fitnesses = map(self.toolbox.evaluate, invalid_ind)
             fitnesses = []
             for i, ind in enumerate(invalid_ind):
                 result = self.toolbox.evaluate(ind)
-                print(f"Nº: {i + 1} | {self.target_variable}: {result[0]}")
-                print(f"Ind: {[f'{i:.4f}' for i in ind]}")
+                self.log(f"Nº: {i + 1} | {self.target_variable}: {result[0]}", verbose=config["verbose"])
+                self.log(
+                    f"Ind: {[f'{var}: {i:.4f}' for i, var in zip(ind, self.decision_variables.keys())]}",
+                    verbose=config["verbose"]
+                )
                 fitnesses.append(result)
 
             for ind, fit in zip(invalid_ind, fitnesses):
@@ -189,6 +201,9 @@ class GAOptimizationStudy(OptimizationStudy):
             mean = sum(fits) / length
             sum2 = sum(x * x for x in fits)
             std = abs(sum2 / length - mean ** 2) ** 0.5
+            gen_time = start_time - time.time()
+            rate = len(invalid_ind) / (gen_time / 60)  # Individuals / minute
+            rates.append(rate)
 
             print(" ")
             self.log("Estatísticas da geração:")
@@ -197,6 +212,7 @@ class GAOptimizationStudy(OptimizationStudy):
             self.log(f"Max: {max(fits):.5f}")
             self.log(f"Avg: {mean:.5f}")
             self.log(f"Std: {std:.5f}")
+            self.log(f"Rate: {rate:.2f}")
 
             self.eval_EES_model(best_ind)
             gen_history.append({
@@ -207,7 +223,8 @@ class GAOptimizationStudy(OptimizationStudy):
                     "min": min(fits),
                     "max": max(fits),
                     "avg": mean,
-                    "std": std
+                    "std": std,
+                    "rate": rate
                 },
                 "best_output": self.output_dict
             })
@@ -230,6 +247,7 @@ class GAOptimizationStudy(OptimizationStudy):
             "best_individual": variables,
             "evolution_time": delta_t,
             "generations": g,
+            "avg_rate": sum(rates) / len(rates),
             "config": config,
             "best_output": gen_history[-1]["best_output"],
             "gen_history": gen_history,
@@ -246,9 +264,7 @@ class GAOptimizationStudy(OptimizationStudy):
             json.dump(results, jsonfile, indent=4)
 
     def ind_to_dict(self, ind):
-        target = {
-            self.target_variable: ind.fitness.values[0]
-        }
+        target = {self.target_variable: ind.fitness.values[0]}
 
         variables = {}
         for variable, value in zip(self.decision_variables.keys(), ind):
@@ -264,6 +280,7 @@ class GAOptimizationStudy(OptimizationStudy):
     def display_results(self, results):
         self.log(f"Run ID: {self.runID}")
         self.log(f"Tempo de Execução: {datetime.timedelta(seconds=results['evolution_time'])}")
+        self.log(f"Taxa Média de cálculo de indivíduos: {results['avg_rate']} indivíduos/minuto")
         self.log(f"Melhor valor da função objetivo:")
         self.log(results["best_target"])
         self.log(f"Melhor Indivíduo (Conjunto de variáveis de decisão):")

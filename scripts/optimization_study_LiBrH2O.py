@@ -8,7 +8,7 @@ from ees.optimization_ga import GAOptimizationStudy
 from ees.optimization_graphs import OptGraph
 
 
-def main(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
+def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
     """Run one optimization case."""
     eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
     eesopt.set_decision_variables(decision_variables)
@@ -29,57 +29,71 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
     if not os.path.exists(opt_analysis_folder):
         os.makedirs(opt_analysis_folder)
 
-    low = tuple([v[0] for _, v in decision_variables.items()])
-    up = tuple([v[1] for _, v in decision_variables.items()])
+    low = tuple([int(v[0]) for _, v in decision_variables.items()])
+    up = tuple([int(v[1]) for _, v in decision_variables.items()])
 
     params = {
         "population": [10, 15, 25, 50, 100, 200],
-        "crossover_rates": [
-            {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.4, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.6, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.7, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.8, 'method': 'cxTwoPoint', 'params': {}}
-        ],
-        "crossover_methods": [
-            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.5, 'method': 'cxUniform', 'params': {'indpb': 0.05}},
-            {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.45}}
-        ],
-        "mutation_rates": [
-            {'rate': 0.01, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.05, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.10, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.20, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.25, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}}
-        ],
-        "mutation_methods": [
-            {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
-            {'rate': 0.15, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-            {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        ],
-        "selection_methods": [
-            {'method': 'selTournament', 'params': {'tournsize': 3}},
-            {'method': 'selBest', 'params': {}},
-            {'method': 'selRoulette', 'params': {}},
-        ]
+        # "crossover_rates": [
+        #     {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}},
+        #     {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}},
+        #     {'rate': 0.4, 'method': 'cxTwoPoint', 'params': {}},
+        #     {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
+        #     {'rate': 0.6, 'method': 'cxTwoPoint', 'params': {}},
+        #     {'rate': 0.7, 'method': 'cxTwoPoint', 'params': {}},
+        #     {'rate': 0.8, 'method': 'cxTwoPoint', 'params': {}}
+        # ],
+        # "crossover_methods": [
+        #     {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
+        #     {'rate': 0.5, 'method': 'cxUniform', 'params': {'indpb': 0.05}},
+        #     {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.45}}
+        # ],
+        # "mutation_rates": [
+        #     {'rate': 0.01, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+        #     {'rate': 0.05, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+        #     {'rate': 0.10, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+        #     {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+        #     {'rate': 0.20, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+        #     {'rate': 0.25, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}}
+        # ],
+        # "mutation_methods": [
+        #     {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
+        #     {'rate': 0.15, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+        #     {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+        # ],
+        # "selection_methods": [
+        #     {'method': 'selTournament', 'params': {'tournsize': 3}},
+        #     {'method': 'selBest', 'params': {}},
+        #     {'method': 'selRoulette', 'params': {}},
+        # ]
     }
+    target_variable = "EUF_sys"
+    target_display = r"$ EUF_{sys} $"
+    # target_variable = "psi_sys_1"
+    # target_display = r"$ \psi_{sys} $"
+    # target_variable = "m_dot[38]"
+    # target_display = r"$ \dot{m}_{38} $"
     for param, values in params.items():
         results = {}
         key = param.split("_")[0]
-        for value in values:
+        for i, value in enumerate(values):
+            if value == None:
+                continue
             config = {**base_config}
             config.update({key: value})
+            print(" ")
+            print("Iniciando nova análise com os seguintes valores:")
+            print(value)
+            filtered_result = {}
             eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
             eesopt.set_decision_variables(decision_variables)
-            eesopt.set_target_variable("EUF_sys", r"$ EUF_{sys} $")
-            # eesopt.set_target_variable("psi_sys_1", r"$ \psi_{sys} $")
-            # eesopt.set_target_variable("m_dot[38]", r"$ \dot{m}_{38} $")
+            eesopt.set_target_variable(target_variable, target_display)
             result = eesopt.execute_GA(config)
-            results.update({
+            if result == {}:
+                results.update(result)
+                continue
+
+            filtered_result = {
                 result["run_ID"]: {
                     "best_target": result["best_target"],
                     "best_individual": result["best_individual"],
@@ -88,8 +102,28 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
                     "config": result["config"],
                     "best_output": result["best_output"],
                 }
-            })
+            }
+            results.update(filtered_result)
+
+            # Save run result to file
+            folderpath = os.path.join(opt_analysis_folder, target_variable, param)
+            if not os.path.exists(folderpath):
+                os.makedirs(folderpath)
+
+            filename = f"result_run_{i + 1}.json"
+            filepath = os.path.join(folderpath, filename)
+
+            filename_readable = f"result-readable_run_{i + 1}.json"
+            filepath_readable = os.path.join(folderpath, filename_readable)
+
+            with open(filepath, 'w') as jsonfile:
+                json.dump(filtered_result, jsonfile)
+
+            with open(filepath_readable, 'w') as jsonfile:
+                json.dump(filtered_result, jsonfile, indent=4)
+
             del eesopt
+
         print(" ")
         print(f"Resultados de: {param}")
         targets = []
@@ -104,15 +138,19 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
         json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_analysis.json")
         with open(json_filename, 'w') as jsonfile:
             json.dump(results, jsonfile)
+
         r_json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_readable_analysis.json")
         with open(r_json_filename, 'w') as jsonfile:
             json.dump(results, jsonfile, indent=4)
-        break
 
 
-if __name__ == "__main__":
+def get_best_result():
+    pass
+
+
+def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-    EES_model = r'C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O.EES'
+    EES_model = r'C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O_opt.EES'
 
     inputs = {
         'm_dot[9]': 0.0226,
@@ -161,7 +199,7 @@ if __name__ == "__main__":
                'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh']
 
     decision_variables = {
-        'm_dot[9]': (0.005, 0.035),
+        # 'm_dot[9]': (0.005, 0.035),
         'T[10]': (35, 44),
         'T[19]': (35, 48),
         'T[13]': (75, 90),
@@ -173,12 +211,17 @@ if __name__ == "__main__":
 
     base_config = {
         'seed': 5,
-        'population': 50,
+        'population': 25,
         'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
         'mutation': {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
         'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
-        'max_generation': 40,
-        'cvrg_tolerance': 1e-5
+        'max_generation': 35,
+        'cvrg_tolerance': 1e-5,
+        'verbose': True
     }
-    main(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+
+
+if __name__ == "__main__":
+    main()
