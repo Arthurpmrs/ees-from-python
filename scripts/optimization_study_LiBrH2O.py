@@ -132,7 +132,7 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
                 json.dump(filtered_result, jsonfile)
 
             with open(filepath_readable, 'w') as jsonfile:
-                json.dump(filtered_result, jsonfile)
+                json.dump(filtered_result, jsonfile, indent=4)
 
             del eesopt
 

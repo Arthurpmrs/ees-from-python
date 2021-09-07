@@ -24,6 +24,7 @@ class OptimizationStudy:
         self.paths = self.set_paths()
         self.runID = round(time.time())
         self.logger = self.setup_logging()
+        self.consecutive_error_count = 0
         self.is_ready = {
             'target_variable': False,
             'decision_variables': False,
@@ -65,7 +66,10 @@ class OptimizationStudy:
         self.is_ready['decision_variables'] = True
 
     def setup_DDE(self):
-        # TO-DO: Se existir uma janela do EES aberta, feche como: taskkill /F /IM EES.exe
+        if "EES.exe" in str(subprocess.check_output('tasklist')):
+            self.log(">> Uma instância do EES foi encontrada aberta. Ela será fechada.")
+            os.system("taskkill /f /im  EES.exe")
+
         self.log(f">> Abrindo o EES em {self.EES_exe}")
         subprocess.Popen([self.EES_exe, '/hide'], shell=True, close_fds=True).pid
         time.sleep(15)
@@ -98,8 +102,22 @@ class OptimizationStudy:
             self.prepare_inputs(individual)
             self.connector.Exec('[SOLVE]')
             target_variable = self.get_output()
-        except dde.error as e:
-            self.log(f"Um erro ocorreu com o EES ({e}). O resultado para essa rodada será considerado 0.")
+            self.consecutive_error_count = 0
+        except dde.error:
+            self.consecutive_error_count += 1
+            self.log(f">> Erro: Conexão DDE falhou. A variável target para esta rodada será considerado 0.")
+            if self.consecutive_error_count > 2:
+                self.log(">> O erro persiste. Reiniciando o EES.")
+                try:
+                    self.server.Shutdown()
+                    os.system("taskkill /f /im  EES.exe")
+                    del self.connector
+                    del self.server
+                except Exception as deletion_exception:
+                    self.logger.exception(deletion_exception)
+
+                self.setup_DDE()
+                self.consecutive_error_count = 0
             target_variable = 0
         return (target_variable, )
 
@@ -123,14 +141,10 @@ class OptimizationStudy:
         error_has_ocorred = False
         for chunk in output_chunks:
             output_variables = " ".join([str(var) for var in chunk])
-            try:
-                self.connector.Exec(f"[Export \'Clipboard\' {output_variables}]")
-                result = pyperclip.paste()
-                self.connector.Exec(f"[ClearClipboard]")
-            except dde.error as e:
-                self.log(f"Um erro ocorreu com o EES ({e}). O resultado para essa rodada será considerado 0.")
-                result = "error has ocorred"
-                pyperclip.copy('')
+            self.connector.Exec(f"[Export \'Clipboard\' {output_variables}]")
+            result = pyperclip.paste()
+            self.connector.Exec(f"[ClearClipboard]")
+            pyperclip.copy('')
 
             result = result.replace("\t", " ").replace("\r\n", " ")
             results.extend(result.split(" "))
@@ -145,7 +159,7 @@ class OptimizationStudy:
             self.output_dict.update({output: value})
 
         if error_has_ocorred:
-            self.log("O EES não exportou valores corretos. Algum erro aconteceu!")
+            self.log(">> Erro: O EES não exportou valores corretos. Variável target será 0.")
             self.output_dict.update({self.target_variable: 0})
 
         return self.output_dict[self.target_variable]
