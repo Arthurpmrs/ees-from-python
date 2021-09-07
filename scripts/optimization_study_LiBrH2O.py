@@ -21,7 +21,7 @@ def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_c
     graph.generate(r"$ EUF_{sys} $", lang="en-US")
 
 
-def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
+def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params):
     model_filename = os.path.basename(EES_model).split(".")[0]
     model_folder = os.path.join(os.path.dirname(EES_model), model_filename)
     opt_analysis_folder = os.path.join(model_folder, ".optAnalysis")
@@ -32,41 +32,6 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
     low = tuple([int(v[0]) for _, v in decision_variables.items()])
     up = tuple([int(v[1]) for _, v in decision_variables.items()])
 
-    params = {
-        "population": [10, 15, 25, 50, 100, 200],
-        # "crossover_rates": [
-        #     {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}},
-        #     {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}},
-        #     {'rate': 0.4, 'method': 'cxTwoPoint', 'params': {}},
-        #     {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-        #     {'rate': 0.6, 'method': 'cxTwoPoint', 'params': {}},
-        #     {'rate': 0.7, 'method': 'cxTwoPoint', 'params': {}},
-        #     {'rate': 0.8, 'method': 'cxTwoPoint', 'params': {}}
-        # ],
-        # "crossover_methods": [
-        #     {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-        #     {'rate': 0.5, 'method': 'cxUniform', 'params': {'indpb': 0.05}},
-        #     {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.45}}
-        # ],
-        # "mutation_rates": [
-        #     {'rate': 0.01, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        #     {'rate': 0.05, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        #     {'rate': 0.10, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        #     {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        #     {'rate': 0.20, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        #     {'rate': 0.25, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}}
-        # ],
-        # "mutation_methods": [
-        #     {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
-        #     {'rate': 0.15, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-        #     {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        # ],
-        # "selection_methods": [
-        #     {'method': 'selTournament', 'params': {'tournsize': 3}},
-        #     {'method': 'selBest', 'params': {}},
-        #     {'method': 'selRoulette', 'params': {}},
-        # ]
-    }
     target_variable = "EUF_sys"
     target_display = r"$ EUF_{sys} $"
     # target_variable = "psi_sys_1"
@@ -219,8 +184,45 @@ def main():
         'cvrg_tolerance': 1e-5,
         'verbose': True
     }
+
+    params = {
+        "population": [10, 15, 25, 50, 100, 200],
+        "crossover_rates": [
+            {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.4, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.6, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.7, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.8, 'method': 'cxTwoPoint', 'params': {}}
+        ],
+        "crossover_methods": [
+            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.5, 'method': 'cxUniform', 'params': {'indpb': 0.05}},
+            {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.45}}
+        ],
+        "mutation_rates": [
+            {'rate': 0.01, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+            {'rate': 0.05, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+            {'rate': 0.10, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+            {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+            {'rate': 0.20, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+            {'rate': 0.25, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}}
+        ],
+        "mutation_methods": [
+            {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
+            {'rate': 0.15, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+            {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+        ],
+        "selection_methods": [
+            {'method': 'selTournament', 'params': {'tournsize': 3}},
+            {'method': 'selBest', 'params': {}},
+            {'method': 'selRoulette', 'params': {}},
+        ]
+    }
+
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
 
 
 if __name__ == "__main__":
