@@ -221,8 +221,8 @@ def main():
         ]
     }
 
-    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
+    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
 
 
 if __name__ == "__main__":
