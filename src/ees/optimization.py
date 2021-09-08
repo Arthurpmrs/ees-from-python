@@ -123,7 +123,7 @@ class OptimizationStudy:
     def eval_EES_model(self, individual):
         # Remove 0 and negative values from decision variables
         for i, (variable, limits) in enumerate(zip(individual, self.decision_variables.values())):
-            if variable <= 0:
+            if variable <= 0 or (variable < limits[0] or variable > limits[1]):
                 individual[i] = (limits[0] + limits[1]) / 2
 
         try:
