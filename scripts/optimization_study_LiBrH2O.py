@@ -264,7 +264,7 @@ def main():
     best_config = {
         'seed': 5,
         'population': 200,
-        'crossover': {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.45}},
+        'crossover': {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.25}},
         'mutation': {'rate': 0.01, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
         'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
         'max_generation': 40,
