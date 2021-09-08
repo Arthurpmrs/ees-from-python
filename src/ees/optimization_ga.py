@@ -119,6 +119,7 @@ class GAOptimizationStudy(OptimizationStudy):
 
         # Variable keeping track of the number of generations
         g = 0
+        gen_time_old = start_time
         rates = []
         gen_history = []
         fits_old = 0
@@ -201,7 +202,11 @@ class GAOptimizationStudy(OptimizationStudy):
             mean = sum(fits) / length
             sum2 = sum(x * x for x in fits)
             std = abs(sum2 / length - mean ** 2) ** 0.5
-            gen_time = start_time - time.time()
+
+            # Calculate generation rate in individuals / minute
+            current_time = time.time()
+            gen_time = current_time - gen_time_old
+            gen_time_old = current_time
             rate = len(invalid_ind) / (gen_time / 60)  # Individuals / minute
             rates.append(rate)
 
@@ -280,6 +285,7 @@ class GAOptimizationStudy(OptimizationStudy):
     def display_results(self, results):
         self.log(f"Run ID: {self.runID}")
         self.log(f"Tempo de Execução: {datetime.timedelta(seconds=results['evolution_time'])}")
+        self.log(f"Gerações para a convergência: {results['generations']}")
         self.log(f"Taxa Média de cálculo de indivíduos: {results['avg_rate']} indivíduos/minuto")
         self.log(f"Melhor valor da função objetivo:")
         self.log(results["best_target"])

@@ -2,6 +2,9 @@ import os
 import sys
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 import json
+import logging
+import datetime
+from rich import print
 from icecream import ic
 from ees.optimization import OptimizationStudy
 from ees.optimization_ga import GAOptimizationStudy
@@ -28,9 +31,6 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
 
     if not os.path.exists(opt_analysis_folder):
         os.makedirs(opt_analysis_folder)
-
-    low = tuple([int(v[0]) for _, v in decision_variables.items()])
-    up = tuple([int(v[1]) for _, v in decision_variables.items()])
 
     target_variable = "EUF_sys"
     target_display = r"$ EUF_{sys} $"
@@ -89,28 +89,102 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
 
             del eesopt
 
-        print(" ")
-        print(f"Resultados de: {param}")
-        targets = []
-        for idx, result in results.items():
-            print(f"ID: {idx} | {result['best_target']}")
-            targets.append((idx, [v for _, v in result["best_target"].items()][0]))
+        # print(" ")
+        # print(f"Resultados de: {param}")
+        # targets = []
+        # for idx, result in results.items():
+        #     print(f"ID: {idx} | {result['best_target']}")
+        #     targets.append((idx, [v for _, v in result["best_target"].items()][0]))
 
-        best_target = sorted(targets, key=lambda x: x[1], reverse=True)[0]
-        print(f"Valor máximo >> ID: {best_target[0]} | Valor: {best_target[1]}")
-        print(f"Config: \n {results[best_target[0]]}")
+        # best_target = sorted(targets, key=lambda x: x[1], reverse=True)[0]
+        # print(f"Valor máximo >> ID: {best_target[0]} | Valor: {best_target[1]}")
+        # print(f"Config: \n {results[best_target[0]]}")
 
-        json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_analysis.json")
-        with open(json_filename, 'w') as jsonfile:
-            json.dump(results, jsonfile)
+        # json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_analysis.json")
+        # with open(json_filename, 'w') as jsonfile:
+        #     json.dump(results, jsonfile)
 
-        r_json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_readable_analysis.json")
-        with open(r_json_filename, 'w') as jsonfile:
-            json.dump(results, jsonfile, indent=4)
+        # r_json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_readable_analysis.json")
+        # with open(r_json_filename, 'w') as jsonfile:
+        #     json.dump(results, jsonfile, indent=4)
 
 
-def get_best_result():
-    pass
+def get_best_result(EES_exe, EES_model, params):
+    model_filename = os.path.basename(EES_model).split(".")[0]
+    model_folder = os.path.join(os.path.dirname(EES_model), model_filename)
+    opt_analysis_folder = os.path.join(model_folder, ".optAnalysis")
+
+    target_variable = "EUF_sys"
+    target_display = r"$ EUF_{sys} $"
+    # target_variable = "psi_sys_1"
+    # target_display = r"$ \psi_{sys} $"
+    # target_variable = "m_dot[38]"
+    # target_display = r"$ \dot{m}_{38} $"
+    target_variable_folder = os.path.join(opt_analysis_folder, target_variable)
+
+    # Setup logging
+    logfolder = os.path.join(opt_analysis_folder, target_variable)
+    logger = setup_logging(logfolder)
+
+    for param, values in params.items():
+        folderpath = os.path.join(target_variable_folder, param)
+        results = {}
+        for i, value in enumerate(values):
+            filename = f"result_run_{i + 1}.json"
+            filepath = os.path.join(folderpath, filename)
+
+            with open(filepath, 'r') as jsonfile:
+                results.update(json.load(jsonfile))
+
+        log(logger, f"Análise de: {param}")
+        sorted_results = sorted(
+            [(idx, r["best_target"][target_variable], v) for (idx, r), v in zip(results.items(), values)],
+            key=lambda x: x[1],
+            reverse=True
+        )
+        for result in sorted_results:
+            log(logger, f"ID: {result[0]} | {target_variable}: {result[1]} | {param}: {result[2]}")
+
+        best_result = results[sorted_results[0][0]]
+
+        log(logger, f"Run ID: {sorted_results[0][0]}")
+        log(logger, f"Tempo de Execução: {datetime.timedelta(seconds=best_result['evolution_time'])}")
+        log(logger, f"Gerações para a convergência: {best_result['generations']}")
+        log(logger, f"Melhor valor da função objetivo:")
+        log(logger, best_result["best_target"])
+        log(logger, f"Melhor Indivíduo (Conjunto de variáveis de decisão):")
+        log(logger, {k: round(v, 4) for (k, v) in best_result["best_individual"].items()})
+        log(logger, f"Parâmetros do Algoritmo Genético:")
+        log(logger, best_result["config"])
+        log(logger, "Output referente ao melhor indivíduo: ")
+        log(logger, {k: round(v, 4) for (k, v) in best_result["best_output"].items()})
+        log(logger, " ")
+
+
+def log(logger, message):
+    logger.info(message)
+    print(message)
+
+
+def setup_logging(logfolder):
+    if not os.path.exists(logfolder):
+        os.makedirs(logfolder)
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s:%(filename)s:%(message)s')
+
+    file_handler = logging.FileHandler(
+        os.path.join(
+            logfolder,
+            f'best-results.log'
+        ))
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+
+    return logger
 
 
 def main():
@@ -164,7 +238,6 @@ def main():
                'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh']
 
     decision_variables = {
-        # 'm_dot[9]': (0.005, 0.035),
         'T[10]': (35, 44),
         'T[19]': (35, 48),
         'T[13]': (75, 90),
@@ -174,6 +247,9 @@ def main():
         'T[32]': (15, 40)
     }
 
+    low = tuple([int(v[0]) for _, v in decision_variables.items()])
+    up = tuple([int(v[1]) for _, v in decision_variables.items()])
+
     base_config = {
         'seed': 5,
         'population': 25,
@@ -181,6 +257,17 @@ def main():
         'mutation': {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
         'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
         'max_generation': 35,
+        'cvrg_tolerance': 1e-5,
+        'verbose': True
+    }
+
+    best_config = {
+        'seed': 5,
+        'population': 200,
+        'crossover': {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.25}},
+        'mutation': {'rate': 0.01, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+        'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
+        'max_generation': 40,
         'cvrg_tolerance': 1e-5,
         'verbose': True
     }
@@ -222,7 +309,9 @@ def main():
     }
 
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
+    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
+    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
+    # get_best_result(EES_exe, EES_model, params)
 
 
 if __name__ == "__main__":
