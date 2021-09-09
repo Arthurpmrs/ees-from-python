@@ -189,7 +189,7 @@ def setup_logging(logfolder):
 
 def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-    EES_model = r'C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O_opt.EES'
+    EES_model = r'C:\Root\Universidade\Mestrado\Analise\trigeracao_LiBrH2O.EES'
 
     inputs = {
         'm_dot[9]': 0.0226,
@@ -261,13 +261,24 @@ def main():
         'verbose': True
     }
 
-    best_config = {
+    # best_config = {
+    #     'seed': 5,
+    #     'population': 200,
+    #     'crossover': {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.25}},
+    #     'mutation': {'rate': 0.01, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+    #     'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
+    #     'max_generation': 40,
+    #     'cvrg_tolerance': 1e-5,
+    #     'verbose': True
+    # }
+
+    config = {
         'seed': 5,
-        'population': 200,
-        'crossover': {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.25}},
+        'population': 100,
+        'crossover': {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.45}},
         'mutation': {'rate': 0.01, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-        'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
-        'max_generation': 40,
+        'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
+        'max_generation': 150,
         'cvrg_tolerance': 1e-5,
         'verbose': True
     }
@@ -309,7 +320,7 @@ def main():
     }
 
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
+    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, config)
     # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
     # get_best_result(EES_exe, EES_model, params)
 
