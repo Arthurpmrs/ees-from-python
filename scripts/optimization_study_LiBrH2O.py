@@ -89,25 +89,6 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
 
             del eesopt
 
-        # print(" ")
-        # print(f"Resultados de: {param}")
-        # targets = []
-        # for idx, result in results.items():
-        #     print(f"ID: {idx} | {result['best_target']}")
-        #     targets.append((idx, [v for _, v in result["best_target"].items()][0]))
-
-        # best_target = sorted(targets, key=lambda x: x[1], reverse=True)[0]
-        # print(f"Valor máximo >> ID: {best_target[0]} | Valor: {best_target[1]}")
-        # print(f"Config: \n {results[best_target[0]]}")
-
-        # json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_analysis.json")
-        # with open(json_filename, 'w') as jsonfile:
-        #     json.dump(results, jsonfile)
-
-        # r_json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_readable_analysis.json")
-        # with open(r_json_filename, 'w') as jsonfile:
-        #     json.dump(results, jsonfile, indent=4)
-
 
 def get_best_result(EES_exe, EES_model, params):
     model_filename = os.path.basename(EES_model).split(".")[0]
@@ -247,16 +228,21 @@ def main():
         'T[32]': (15, 40)
     }
 
-    low = tuple([int(v[0]) for _, v in decision_variables.items()])
-    up = tuple([int(v[1]) for _, v in decision_variables.items()])
+    low = tuple([v[0] for _, v in decision_variables.items()])
+    up = tuple([v[1] for _, v in decision_variables.items()])
+
+    mu = [(x2 - x1) / 5 for x1, x2 in decision_variables.values()]
+
+    int_low = tuple([int(l) for l in low])
+    int_up = tuple([int(u) for u in up])
 
     base_config = {
         'seed': 5,
-        'population': 25,
+        'population': 50,
         'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-        'mutation': {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
-        'max_generation': 35,
+        'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+        'selection': {'method': 'selTournament', 'params': {'tournsize': 5}},
+        'max_generation': 150,
         'cvrg_tolerance': 1e-5,
         'verbose': True
     }
@@ -272,19 +258,8 @@ def main():
     #     'verbose': True
     # }
 
-    config = {
-        'seed': 5,
-        'population': 100,
-        'crossover': {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.45}},
-        'mutation': {'rate': 0.01, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-        'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
-        'max_generation': 150,
-        'cvrg_tolerance': 1e-5,
-        'verbose': True
-    }
-
     params = {
-        "population": [10, 15, 25, 50, 100, 200],
+        "population": [10, 15, 25, 50, 100, 150, 200],
         "crossover_rates": [
             {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}},
             {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}},
@@ -296,32 +271,32 @@ def main():
         ],
         "crossover_methods": [
             {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.5, 'method': 'cxUniform', 'params': {'indpb': 0.05}},
-            {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.45}}
+            {'rate': 0.5, 'method': 'cxSimulatedBinaryBounded', 'params': {'indpb': 0.05, 'eta': 3, 'low': low, 'up': up}},
+            {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.4}}
         ],
         "mutation_rates": [
-            {'rate': 0.01, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.05, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.10, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.20, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.25, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}}
+            {'rate': 0.05, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
+            {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
+            {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
+            {'rate': 0.20, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
+            {'rate': 0.25, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}}
         ],
         "mutation_methods": [
-            {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
-            {'rate': 0.15, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-            {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
+            {'rate': 0.10, 'method': 'mutGaussian', 'params': {'indpb': 0.05, 'mu': mu, 'sigma': 0.15}},
+            {'rate': 0.10, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+            {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
         ],
         "selection_methods": [
-            {'method': 'selTournament', 'params': {'tournsize': 3}},
+            {'method': 'selTournament', 'params': {'tournsize': 5}},
             {'method': 'selBest', 'params': {}},
             {'method': 'selRoulette', 'params': {}},
+            {'method': 'selStochasticUniversalSampling', 'params': {}},
         ]
     }
 
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, config)
-    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
+    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, config)
+    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
     # get_best_result(EES_exe, EES_model, params)
 
 
