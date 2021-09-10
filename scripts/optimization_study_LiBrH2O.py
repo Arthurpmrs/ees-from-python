@@ -9,6 +9,7 @@ from icecream import ic
 from ees.optimization import OptimizationStudy
 from ees.optimization_ga import GAOptimizationStudy
 from ees.optimization_graphs import OptGraph
+from ees.utilities import get_base_folder, add_folder
 
 
 def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
@@ -19,18 +20,14 @@ def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_c
     # eesopt.set_target_variable("psi_sys_1", r"$ \psi_{sys} $")
     # eesopt.set_target_variable("m_dot[38]", r"$ \dot{m}_{38} $")
     eesopt.execute_GA(base_config)
-    graph = OptGraph(r"C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O")
+    graph = OptGraph(eesopt.paths["base_folder"])
     graph.generate(r"$ EUF_{sys} $", lang="pt-BR")
     graph.generate(r"$ EUF_{sys} $", lang="en-US")
 
 
 def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params):
-    model_filename = os.path.basename(EES_model).split(".")[0]
-    model_folder = os.path.join(os.path.dirname(EES_model), model_filename)
-    opt_analysis_folder = os.path.join(model_folder, ".optAnalysis")
-
-    if not os.path.exists(opt_analysis_folder):
-        os.makedirs(opt_analysis_folder)
+    base_folder = get_base_folder(EES_model)
+    opt_analysis_folder = add_folder(base_folder, ".optAnalysis")
 
     target_variable = "EUF_sys"
     target_display = r"$ EUF_{sys} $"
@@ -42,13 +39,17 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
         results = {}
         key = param.split("_")[0]
         for i, value in enumerate(values):
+
             if value == None:
                 continue
+
             config = {**base_config}
             config.update({key: value})
+
             print(" ")
             print("Iniciando nova análise com os seguintes valores:")
             print(value)
+
             filtered_result = {}
             eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
             eesopt.set_decision_variables(decision_variables)
@@ -71,18 +72,16 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
             results.update(filtered_result)
 
             # Save run result to file
-            folderpath = os.path.join(opt_analysis_folder, target_variable, param)
-            if not os.path.exists(folderpath):
-                os.makedirs(folderpath)
+            folderpath = add_folder(opt_analysis_folder, target_variable, param)
 
             filename = f"result_run_{i + 1}.json"
             filepath = os.path.join(folderpath, filename)
 
-            filename_readable = f"result-readable_run_{i + 1}.json"
-            filepath_readable = os.path.join(folderpath, filename_readable)
-
             with open(filepath, 'w') as jsonfile:
                 json.dump(filtered_result, jsonfile)
+
+            filename_readable = f"result-readable_run_{i + 1}.json"
+            filepath_readable = os.path.join(folderpath, filename_readable)
 
             with open(filepath_readable, 'w') as jsonfile:
                 json.dump(filtered_result, jsonfile, indent=4)
@@ -91,9 +90,8 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
 
 
 def get_best_result(EES_exe, EES_model, params):
-    model_filename = os.path.basename(EES_model).split(".")[0]
-    model_folder = os.path.join(os.path.dirname(EES_model), model_filename)
-    opt_analysis_folder = os.path.join(model_folder, ".optAnalysis")
+    base_folder = get_base_folder(EES_model)
+    opt_analysis_folder = add_folder(base_folder, ".optAnalysis")
 
     target_variable = "EUF_sys"
     target_display = r"$ EUF_{sys} $"

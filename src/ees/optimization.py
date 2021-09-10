@@ -45,6 +45,7 @@ class OptimizationStudy:
             '.'.join(model_filename.split('.')[:-1])
         )
         paths = {
+            "base_folder": base_folder,
             "plots": os.path.join(base_folder, ".optPlots"),
             "logs": os.path.join(base_folder, ".optLogs"),
             "results": os.path.join(base_folder, ".optResults")

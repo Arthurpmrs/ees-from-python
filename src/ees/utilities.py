@@ -30,3 +30,31 @@ def cleanup_csv(csv_filepath):
             csvwriter.writerow(line)
 
     return clean_data
+
+
+def get_base_folder(model_path: str) -> str:
+    model_filename = os.path.basename(model_path).split(".")[0]
+    base_folder = os.path.join(os.path.dirname(model_path), model_filename)
+
+    if not os.path.exists(base_folder):
+        os.makedirs(base_folder)
+
+    return base_folder
+
+
+def add_folder(base_folder: str, *folders: str) -> str:
+    new_folder = os.path.join(base_folder, *folders)
+
+    if not os.path.exists(new_folder):
+        os.makedirs(new_folder)
+
+    return new_folder
+
+
+def main():
+    base_folder = os.getcwd()
+    print(add_folder(base_folder, 'teste', 'test2'))
+
+
+if __name__ == "__main__":
+    main()
