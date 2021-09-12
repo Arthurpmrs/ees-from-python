@@ -293,9 +293,9 @@ def main():
     }
 
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, config)
+    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
     # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
-    get_best_result(EES_exe, EES_model, params)
+    # get_best_result(EES_exe, EES_model, params)
 
 
 if __name__ == "__main__":
