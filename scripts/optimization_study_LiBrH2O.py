@@ -2,13 +2,17 @@ import os
 import sys
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 import json
+import logging
+import datetime
+from rich import print
 from icecream import ic
 from ees.optimization import OptimizationStudy
 from ees.optimization_ga import GAOptimizationStudy
 from ees.optimization_graphs import OptGraph
+from ees.utilities import get_base_folder, add_folder
 
 
-def main(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
+def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
     """Run one optimization case."""
     eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
     eesopt.set_decision_variables(decision_variables)
@@ -16,70 +20,46 @@ def main(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
     # eesopt.set_target_variable("psi_sys_1", r"$ \psi_{sys} $")
     # eesopt.set_target_variable("m_dot[38]", r"$ \dot{m}_{38} $")
     eesopt.execute_GA(base_config)
-    graph = OptGraph(r"C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O")
+    graph = OptGraph(eesopt.paths["base_folder"])
     graph.generate(r"$ EUF_{sys} $", lang="pt-BR")
     graph.generate(r"$ EUF_{sys} $", lang="en-US")
 
 
-def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
-    model_filename = os.path.basename(EES_model).split(".")[0]
-    model_folder = os.path.join(os.path.dirname(EES_model), model_filename)
-    opt_analysis_folder = os.path.join(model_folder, ".optAnalysis")
+def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params):
+    base_folder = get_base_folder(EES_model)
+    opt_analysis_folder = add_folder(base_folder, ".optAnalysis")
 
-    if not os.path.exists(opt_analysis_folder):
-        os.makedirs(opt_analysis_folder)
-
-    low = tuple([v[0] for _, v in decision_variables.items()])
-    up = tuple([v[1] for _, v in decision_variables.items()])
-
-    params = {
-        "population": [10, 15, 25, 50, 100, 200],
-        "crossover_rates": [
-            {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.4, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.6, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.7, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.8, 'method': 'cxTwoPoint', 'params': {}}
-        ],
-        "crossover_methods": [
-            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.5, 'method': 'cxUniform', 'params': {'indpb': 0.05}},
-            {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.45}}
-        ],
-        "mutation_rates": [
-            {'rate': 0.01, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.05, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.10, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.20, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-            {'rate': 0.25, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}}
-        ],
-        "mutation_methods": [
-            {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
-            {'rate': 0.15, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-            {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        ],
-        "selection_methods": [
-            {'method': 'selTournament', 'params': {'tournsize': 3}},
-            {'method': 'selBest', 'params': {}},
-            {'method': 'selRoulette', 'params': {}},
-        ]
-    }
+    target_variable = "EUF_sys"
+    target_display = r"$ EUF_{sys} $"
+    # target_variable = "psi_sys_1"
+    # target_display = r"$ \psi_{sys} $"
+    # target_variable = "m_dot[38]"
+    # target_display = r"$ \dot{m}_{38} $"
     for param, values in params.items():
         results = {}
         key = param.split("_")[0]
-        for value in values:
+        for i, value in enumerate(values):
+
+            if value == None:
+                continue
+
             config = {**base_config}
             config.update({key: value})
+
+            print(" ")
+            print("Iniciando nova análise com os seguintes valores:")
+            print(value)
+
+            filtered_result = {}
             eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
             eesopt.set_decision_variables(decision_variables)
-            eesopt.set_target_variable("EUF_sys", r"$ EUF_{sys} $")
-            # eesopt.set_target_variable("psi_sys_1", r"$ \psi_{sys} $")
-            # eesopt.set_target_variable("m_dot[38]", r"$ \dot{m}_{38} $")
+            eesopt.set_target_variable(target_variable, target_display)
             result = eesopt.execute_GA(config)
-            results.update({
+            if result == {}:
+                results.update(result)
+                continue
+
+            filtered_result = {
                 result["run_ID"]: {
                     "best_target": result["best_target"],
                     "best_individual": result["best_individual"],
@@ -88,31 +68,107 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
                     "config": result["config"],
                     "best_output": result["best_output"],
                 }
-            })
+            }
+            results.update(filtered_result)
+
+            # Save run result to file
+            folderpath = add_folder(opt_analysis_folder, target_variable, param)
+
+            filename = f"result_run_{i + 1}.json"
+            filepath = os.path.join(folderpath, filename)
+
+            with open(filepath, 'w') as jsonfile:
+                json.dump(filtered_result, jsonfile)
+
+            filename_readable = f"result-readable_run_{i + 1}.json"
+            filepath_readable = os.path.join(folderpath, filename_readable)
+
+            with open(filepath_readable, 'w') as jsonfile:
+                json.dump(filtered_result, jsonfile, indent=4)
+
             del eesopt
-        print(" ")
-        print(f"Resultados de: {param}")
-        targets = []
-        for idx, result in results.items():
-            print(f"ID: {idx} | {result['best_target']}")
-            targets.append((idx, [v for _, v in result["best_target"].items()][0]))
-
-        best_target = sorted(targets, key=lambda x: x[1], reverse=True)[0]
-        print(f"Valor máximo >> ID: {best_target[0]} | Valor: {best_target[1]}")
-        print(f"Config: \n {results[best_target[0]]}")
-
-        json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_analysis.json")
-        with open(json_filename, 'w') as jsonfile:
-            json.dump(results, jsonfile)
-        r_json_filename = os.path.join(opt_analysis_folder, f"opt_{param}_readable_analysis.json")
-        with open(r_json_filename, 'w') as jsonfile:
-            json.dump(results, jsonfile, indent=4)
-        break
 
 
-if __name__ == "__main__":
+def get_best_result(EES_exe, EES_model, params):
+    base_folder = get_base_folder(EES_model)
+    opt_analysis_folder = add_folder(base_folder, ".optAnalysis")
+
+    target_variable = "EUF_sys"
+    target_display = r"$ EUF_{sys} $"
+    # target_variable = "psi_sys_1"
+    # target_display = r"$ \psi_{sys} $"
+    # target_variable = "m_dot[38]"
+    # target_display = r"$ \dot{m}_{38} $"
+    target_variable_folder = os.path.join(opt_analysis_folder, target_variable)
+
+    # Setup logging
+    logfolder = os.path.join(opt_analysis_folder, target_variable)
+    logger = setup_logging(logfolder)
+
+    for param, values in params.items():
+        folderpath = os.path.join(target_variable_folder, param)
+        results = {}
+        for i, value in enumerate(values):
+            filename = f"result_run_{i + 1}.json"
+            filepath = os.path.join(folderpath, filename)
+
+            with open(filepath, 'r') as jsonfile:
+                results.update(json.load(jsonfile))
+
+        log(logger, f"Análise de: {param}")
+        sorted_results = sorted(
+            [(idx, r["best_target"][target_variable], v) for (idx, r), v in zip(results.items(), values)],
+            key=lambda x: x[1],
+            reverse=True
+        )
+        for result in sorted_results:
+            log(logger, f"ID: {result[0]} | {target_variable}: {result[1]} | {param}: {result[2]}")
+
+        best_result = results[sorted_results[0][0]]
+
+        log(logger, f"Run ID: {sorted_results[0][0]}")
+        log(logger, f"Tempo de Execução: {datetime.timedelta(seconds=best_result['evolution_time'])}")
+        log(logger, f"Gerações para a convergência: {best_result['generations']}")
+        log(logger, f"Melhor valor da função objetivo:")
+        log(logger, best_result["best_target"])
+        log(logger, f"Melhor Indivíduo (Conjunto de variáveis de decisão):")
+        log(logger, {k: round(v, 4) for (k, v) in best_result["best_individual"].items()})
+        log(logger, f"Parâmetros do Algoritmo Genético:")
+        log(logger, best_result["config"])
+        log(logger, "Output referente ao melhor indivíduo: ")
+        log(logger, {k: round(v, 4) for (k, v) in best_result["best_output"].items()})
+        log(logger, " ")
+
+
+def log(logger, message):
+    logger.info(message)
+    print(message)
+
+
+def setup_logging(logfolder):
+    if not os.path.exists(logfolder):
+        os.makedirs(logfolder)
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s:%(filename)s:%(message)s')
+
+    file_handler = logging.FileHandler(
+        os.path.join(
+            logfolder,
+            f'best-results.log'
+        ))
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+
+    return logger
+
+
+def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-    EES_model = r'C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O.EES'
+    EES_model = r'C:\Root\Universidade\Mestrado\Analise\trigeracao_LiBrH2O.EES'
 
     inputs = {
         'm_dot[9]': 0.0226,
@@ -161,7 +217,6 @@ if __name__ == "__main__":
                'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh']
 
     decision_variables = {
-        'm_dot[9]': (0.005, 0.035),
         'T[10]': (35, 44),
         'T[19]': (35, 48),
         'T[13]': (75, 90),
@@ -171,14 +226,77 @@ if __name__ == "__main__":
         'T[32]': (15, 40)
     }
 
+    low = tuple([v[0] for _, v in decision_variables.items()])
+    up = tuple([v[1] for _, v in decision_variables.items()])
+
+    mu = [(x2 - x1) / 5 for x1, x2 in decision_variables.values()]
+
+    int_low = tuple([int(l) for l in low])
+    int_up = tuple([int(u) for u in up])
+
     base_config = {
         'seed': 5,
         'population': 50,
         'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-        'mutation': {'rate': 0.15, 'method': 'mutFlipBit', 'params': {'indpb': 0.05}},
-        'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
-        'max_generation': 40,
-        'cvrg_tolerance': 1e-5
+        'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+        'selection': {'method': 'selTournament', 'params': {'tournsize': 5}},
+        'max_generation': 150,
+        'cvrg_tolerance': 1e-5,
+        'verbose': True
     }
-    main(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+
+    best_config = {
+        'seed': 5,
+        'population': 150,
+        'crossover': {'rate': 0.7, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
+        'mutation': {'rate': 0.2, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+        'selection': {'method': 'selStochasticUniversalSampling', 'params': {}},
+        'max_generation': 150,
+        'cvrg_tolerance': 1e-5,
+        'verbose': True
+    }
+
+    params = {
+        "population": [10, 15, 25, 50, 100, 150, 200],
+        "crossover_rates": [
+            {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.4, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.6, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.7, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.8, 'method': 'cxTwoPoint', 'params': {}}
+        ],
+        "crossover_methods": [
+            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
+            {'rate': 0.5, 'method': 'cxSimulatedBinaryBounded', 'params': {'eta': 3, 'low': low, 'up': up}},
+            {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.4}}
+        ],
+        "mutation_rates": [
+            {'rate': 0.05, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+            {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+            {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+            {'rate': 0.20, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+            {'rate': 0.25, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}
+        ],
+        "mutation_methods": [
+            {'rate': 0.10, 'method': 'mutGaussian', 'params': {'indpb': 0.05, 'mu': mu, 'sigma': 0.15}},
+            {'rate': 0.10, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+            {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+        ],
+        "selection_methods": [
+            {'method': 'selTournament', 'params': {'tournsize': 5}},
+            {'method': 'selBest', 'params': {}},
+            {'method': 'selRoulette', 'params': {}},
+            {'method': 'selStochasticUniversalSampling', 'params': {}},
+        ]
+    }
+
+    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, config)
+    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
+    get_best_result(EES_exe, EES_model, params)
+
+
+if __name__ == "__main__":
+    main()

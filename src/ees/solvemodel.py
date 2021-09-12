@@ -4,7 +4,7 @@ import json
 import pandas as pd
 import subprocess
 from icecream import ic
-from parametric import NoModelError
+from .parametric import NoModelError
 
 
 class SolveModel:
@@ -108,7 +108,7 @@ class SolveModel:
 
         macro_string += f'Import \'{input_filepath}\' {input_names_string}\n'
         macro_string += 'Solve\n'
-        macro_string += f'SaveArrays \'main\' \'{csv_filepath}\' /N\n'
+        macro_string += f'SaveArrays \'Main\' \'{csv_filepath}\' /N\n'
         macro_string += f'Export \'{output_filepath}\' {output_names_string}\n'
         macro_string += 'Quit'
 
@@ -181,7 +181,7 @@ if __name__ == "__main__":
         'm_dot[9]': 0.0226,
         'T[1]': 25,
         'T[3]': 468,
-        'T[4]':  763.4,
+        'T[4]': 763.4,
         'T[9]': 25,
         'eta_compressor': 0.85,
         'eta_turbina': 0.85,
