@@ -245,16 +245,16 @@ def main():
         'verbose': True
     }
 
-    # best_config = {
-    #     'seed': 5,
-    #     'population': 200,
-    #     'crossover': {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.25}},
-    #     'mutation': {'rate': 0.01, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-    #     'selection': {'method': 'selTournament', 'params': {'tournsize': 3}},
-    #     'max_generation': 40,
-    #     'cvrg_tolerance': 1e-5,
-    #     'verbose': True
-    # }
+    best_config = {
+        'seed': 5,
+        'population': 150,
+        'crossover': {'rate': 0.7, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
+        'mutation': {'rate': 0.2, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+        'selection': {'method': 'selStochasticUniversalSampling', 'params': {}},
+        'max_generation': 150,
+        'cvrg_tolerance': 1e-5,
+        'verbose': True
+    }
 
     params = {
         "population": [10, 15, 25, 50, 100, 150, 200],
@@ -269,15 +269,15 @@ def main():
         ],
         "crossover_methods": [
             {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.5, 'method': 'cxSimulatedBinaryBounded', 'params': {'indpb': 0.05, 'eta': 3, 'low': low, 'up': up}},
+            {'rate': 0.5, 'method': 'cxSimulatedBinaryBounded', 'params': {'eta': 3, 'low': low, 'up': up}},
             {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.4}}
         ],
         "mutation_rates": [
-            {'rate': 0.05, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
-            {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
-            {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
-            {'rate': 0.20, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}},
-            {'rate': 0.25, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': low, 'up': up}}
+            {'rate': 0.05, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+            {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+            {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+            {'rate': 0.20, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+            {'rate': 0.25, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}
         ],
         "mutation_methods": [
             {'rate': 0.10, 'method': 'mutGaussian', 'params': {'indpb': 0.05, 'mu': mu, 'sigma': 0.15}},
@@ -294,8 +294,8 @@ def main():
 
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, config)
-    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
-    # get_best_result(EES_exe, EES_model, params)
+    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
+    get_best_result(EES_exe, EES_model, params)
 
 
 if __name__ == "__main__":
