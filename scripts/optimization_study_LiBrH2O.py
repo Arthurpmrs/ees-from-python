@@ -10,6 +10,7 @@ from ees.optimization import OptimizationStudy
 from ees.optimization_ga import GAOptimizationStudy
 from ees.optimization_graphs import OptGraph
 from ees.utilities import get_base_folder, add_folder
+from ees.optimization_param_analysis import OptParamAnalysis
 
 
 def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
@@ -19,7 +20,7 @@ def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_c
     eesopt.set_target_variable("EUF_sys", r"$ EUF_{sys} $")
     # eesopt.set_target_variable("psi_sys_1", r"$ \psi_{sys} $")
     # eesopt.set_target_variable("m_dot[38]", r"$ \dot{m}_{38} $")
-    eesopt.execute_GA(base_config)
+    eesopt.execute(base_config)
     graph = OptGraph(eesopt.paths["base_folder"])
     graph.generate(r"$ EUF_{sys} $", lang="pt-BR")
     graph.generate(r"$ EUF_{sys} $", lang="en-US")
@@ -54,7 +55,7 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
             eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
             eesopt.set_decision_variables(decision_variables)
             eesopt.set_target_variable(target_variable, target_display)
-            result = eesopt.execute_GA(config)
+            result = eesopt.execute(config)
             if result == {}:
                 results.update(result)
                 continue
@@ -250,7 +251,7 @@ def main():
         'population': 150,
         'crossover': {'rate': 0.7, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
         'mutation': {'rate': 0.2, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-        'selection': {'method': 'selStochasticUniversalSampling', 'params': {}},
+        'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
         'max_generation': 150,
         'cvrg_tolerance': 1e-5,
         'verbose': True
@@ -293,9 +294,13 @@ def main():
     }
 
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
+    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
     # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
     # get_best_result(EES_exe, EES_model, params)
+
+    paramAnalysis = OptParamAnalysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
+    paramAnalysis.set_target_variable("EUF_sys", r"$ EUF_{sys} $")
+    results = paramAnalysis.get_result_from_file()
 
 
 if __name__ == "__main__":

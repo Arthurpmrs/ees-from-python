@@ -4,7 +4,11 @@ import csv
 
 
 class NoModelError(Exception):
-    """Raises when Model file does not exists."""
+    """Raised when Model file does not exists."""
+
+
+class ParamAnalysisMissingError(Exception):
+    """Raised when a Param Analysis is missing."""
 
 
 def check_model_path(path):

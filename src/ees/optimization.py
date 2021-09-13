@@ -12,7 +12,6 @@ import subprocess
 import pandas as pd
 from icecream import ic
 from rich import print
-from .parametric import NoModelError
 from .utilities import check_model_path
 
 
