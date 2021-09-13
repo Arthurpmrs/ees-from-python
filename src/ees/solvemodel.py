@@ -5,13 +5,14 @@ import pandas as pd
 import subprocess
 from icecream import ic
 from .parametric import NoModelError
+from .utilites import check_model_path
 
 
 class SolveModel:
 
     def __init__(self, EES_exe, EES_model, inputs, outputs):
         self.EES_exe = EES_exe
-        self.EES_model = SolveModel.check_model_path(EES_model)
+        self.EES_model = check_model_path(EES_model)
         self.runID = round(time.time())
         self.paths = self.set_paths(self.EES_model)
         self.inputs = inputs
@@ -160,20 +161,8 @@ class SolveModel:
 
         return output_dict
 
-    @staticmethod
-    def check_model_path(path):
-        """Check if model path is absolute and check if file exists."""
 
-        if not os.path.isabs(path):
-            path = os.path.join(os.getcwd(), path)
-
-        if not os.path.exists(path):
-            raise NoModelError("The model does not exist in the path provided.")
-
-        return path
-
-
-if __name__ == "__main__":
+def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
     EES_model = r'models\trigeracao_LiBrH2O.EES'
 
@@ -225,3 +214,7 @@ if __name__ == "__main__":
 
     model = SolveModel(EES_exe, EES_model, inputs, outputs)
     model.execute()
+
+
+if __name__ == "__main__":
+    main()

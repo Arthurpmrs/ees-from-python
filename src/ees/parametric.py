@@ -2,10 +2,7 @@ import os
 import pandas as pd
 import subprocess
 from icecream import ic
-
-
-class NoModelError(Exception):
-    """Raises when Model file does not exists."""
+from .utilities import check_model_path
 
 
 class ParametricStudy:
@@ -156,7 +153,7 @@ class ParametricStudies:
 
     def __init__(self, EES_exe, EES_model, base_case_inputs, parametric_inputs, outputs):
         self.EES_exe = EES_exe
-        self.EES_model = ParametricStudies.check_model_path(EES_model)
+        self.EES_model = check_model_path(EES_model)
         self.paths = self.set_paths(self.EES_model)
         self.base_case_inputs = base_case_inputs
         self.parametric_inputs = parametric_inputs
@@ -234,15 +231,3 @@ class ParametricStudies:
         for variable, studie in self.parametric_studies.items():
             self.results.update({variable: studie.get_outputs()})
         return self.results
-
-    @staticmethod
-    def check_model_path(path):
-        """Check if model path is absolute and check if file exists."""
-
-        if not os.path.isabs(path):
-            path = os.path.join(os.getcwd(), path)
-
-        if not os.path.exists(path):
-            raise NoModelError("The model does not exist in the path provided.")
-
-        return path

@@ -3,6 +3,22 @@ import re
 import csv
 
 
+class NoModelError(Exception):
+    """Raises when Model file does not exists."""
+
+
+def check_model_path(path):
+    """Check if model path is absolute and check if file exists."""
+
+    if not os.path.isabs(path):
+        path = os.path.join(os.getcwd(), path)
+
+    if not os.path.exists(path):
+        raise NoModelError("The model does not exist in the path provided.")
+
+    return path
+
+
 def cleanup_csv(csv_filepath):
     """Read EES arrays CSV, cleans it up and saves a new cleaned CSV. Also returns CSV content."""
     regex = re.compile(r"\[.*\]")
@@ -52,6 +68,7 @@ def add_folder(base_folder: str, *folders: str) -> str:
 
 
 def main():
+    """Experiment with utilites functions."""
     base_folder = os.getcwd()
     print(add_folder(base_folder, 'teste', 'test2'))
 
