@@ -13,12 +13,12 @@ class OptParamAnalysis:
 
     def __init__(
         self, EES_exe: str, EES_model: str, inputs: dict, outputs: list,
-        decision_variables: dict, base_config: dict, params: dict
+        decision_variables: dict, base_config: dict, params: dict, run_ID: str = None
     ):
         self.EES_exe = EES_exe
         self.EES_model = check_model_path(EES_model)
+        self.run_ID = run_ID if run_ID else str(round(time.time()))
         self.paths = self.set_paths()
-        self.run_ID = round(time.time())
         self.logger = self.setup_logging()
         self.inputs = inputs
         self.outputs = outputs
@@ -28,13 +28,13 @@ class OptParamAnalysis:
 
     def set_paths(self) -> str:
         """Basic paths configuration."""
-        base_folder = get_base_folder(self.EES_model)
+        model_folder = get_base_folder(self.EES_model)
+        base_folder = add_folder(model_folder, ".optParamAnalysis", self.run_ID)
         paths = {
             "base_folder": base_folder,
-            "analysis_folder": add_folder(base_folder, ".optParamAnalysis"),
-            "plots": add_folder(base_folder, ".optParamAnalysis", ".plots"),
-            "logs": add_folder(base_folder, ".optParamAnalysis", ".logs"),
-            "results": add_folder(base_folder, ".optParamAnalysis", ".results")
+            "plots": add_folder(base_folder, ".plots"),
+            "logs": add_folder(base_folder, ".log"),
+            "results": add_folder(base_folder, ".results")
         }
         return paths
 
@@ -47,8 +47,6 @@ class OptParamAnalysis:
 
     def setup_logging(self) -> logging.Logger:
         """Logging configuration."""
-        logfolder = self.paths['logs']
-
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.INFO)
 
@@ -56,7 +54,7 @@ class OptParamAnalysis:
 
         file_handler = logging.FileHandler(
             os.path.join(
-                logfolder,
+                self.paths['logs'],
                 f'{self.run_ID}_opt_parameter_analysis.log'
             ))
         file_handler.setFormatter(formatter)
@@ -128,6 +126,9 @@ class OptParamAnalysis:
         return results
 
     def compute_best_results(self):
+        if not self.results:
+            raise ParamAnalysisMissingError("Não foi realizada uma análise de paâmetros")
+
         for param, values in self.results.items():
             if None in values.keys():
                 raise ParamAnalysisMissingError("Uma das análises falhou!")
@@ -171,6 +172,7 @@ class OptParamAnalysis:
                     param_results.update(json.load(jsonfile))
 
             results.update({param: param_results})
+        self.results = results
         return results
 
     def log(self, text: str, verbose=True):
