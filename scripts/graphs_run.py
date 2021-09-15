@@ -88,11 +88,10 @@ def main():
 
 
 def main2():
-    # base_paths = [
-    #     r"C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O",
-    #     r"C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_NH3H2O",
-    # ]
-    base_paths = [r"C:\Root\Universidade\Mestrado\Analise\trigeracao_LiBrH2O2"]
+    base_paths = [
+        r"C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O",
+        r"C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_NH3H2O",
+    ]
 
     graph = GraphsDefault(base_paths, 'T[32]')
     # graph.dfs["trigeracao_LiBrH2O"].drop(index=14, inplace=True)

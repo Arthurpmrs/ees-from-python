@@ -36,7 +36,6 @@ class OptParamGraphs:
         matplotlib.rcParams["mathtext.fontset"] = "cm"
         matplotlib.rcParams["font.family"] = "CMU Serif"
 
-        # matplotlib.rcParams["font.size"] = 13
         axes = {
             "labelsize": 20,
             "titlesize": 16,
@@ -54,8 +53,5 @@ class OptParamGraphs:
         savefig = {"dpi": 300}
         matplotlib.rc("savefig", **savefig)
 
-        # matplotlib.rcParams["axes.prop_cycle"] = matplotlib.cycler(
-        #     color=["r", "b", "g", "m", "navy", "seagreen", "indigo"]
-        # )
         matplotlib.rcParams["ytick.labelsize"] = 15
         matplotlib.rcParams["xtick.labelsize"] = 15
