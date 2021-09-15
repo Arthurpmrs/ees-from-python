@@ -1,6 +1,7 @@
 import os
 import re
 import csv
+from typing import Union
 
 
 class NoModelError(Exception):
@@ -69,6 +70,12 @@ def add_folder(base_folder: str, *folders: str) -> str:
         os.makedirs(new_folder)
 
     return new_folder
+
+
+def d_difference(d1: dict, d2: dict) -> Union[str, int, float]:
+    for (_, v1), (_, v2) in zip(d1.items(), d2.items()):
+        if v1 != v2:
+            return v2
 
 
 def main():

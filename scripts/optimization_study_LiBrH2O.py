@@ -11,15 +11,17 @@ from ees.optimization_ga import GAOptimizationStudy
 from ees.optimization_graphs import OptGraph
 from ees.utilities import get_base_folder, add_folder
 from ees.optimization_param_analysis import OptParamAnalysis
+from graphs_default_param_analysis import DefaultParamAnalysisGraph
 
 
 def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
     """Run one optimization case."""
+    target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $"}
+    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
+    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
     eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
     eesopt.set_decision_variables(decision_variables)
-    eesopt.set_target_variable("EUF_sys", r"$ EUF_{sys} $")
-    # eesopt.set_target_variable("psi_sys_1", r"$ \psi_{sys} $")
-    # eesopt.set_target_variable("m_dot[38]", r"$ \dot{m}_{38} $")
+    eesopt.set_target_variable(**target_variable)
     eesopt.execute(base_config)
     graph = OptGraph(eesopt.paths["base_folder"])
     graph.generate(r"$ EUF_{sys} $", lang="pt-BR")
@@ -27,144 +29,18 @@ def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_c
 
 
 def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params):
-    base_folder = get_base_folder(EES_model)
-    opt_analysis_folder = add_folder(base_folder, ".optAnalysis")
+    target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $"}
+    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
+    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
+    paramAnalysis = OptParamAnalysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params, run_ID="primeiro")
+    paramAnalysis.set_target_variable(**target_variable)
+    paramAnalysis.set_optimizer(GAOptimizationStudy)
+    # results = paramAnalysis.param_analysis()
+    results = paramAnalysis.get_result_from_file()
 
-    target_variable = "EUF_sys"
-    target_display = r"$ EUF_{sys} $"
-    # target_variable = "psi_sys_1"
-    # target_display = r"$ \psi_{sys} $"
-    # target_variable = "m_dot[38]"
-    # target_display = r"$ \dot{m}_{38} $"
-    for param, values in params.items():
-        results = {}
-        key = param.split("_")[0]
-        for i, value in enumerate(values):
-
-            if value == None:
-                continue
-
-            config = {**base_config}
-            config.update({key: value})
-
-            print(" ")
-            print("Iniciando nova análise com os seguintes valores:")
-            print(value)
-
-            filtered_result = {}
-            eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
-            eesopt.set_decision_variables(decision_variables)
-            eesopt.set_target_variable(target_variable, target_display)
-            result = eesopt.execute(config)
-            if result == {}:
-                results.update(result)
-                continue
-
-            filtered_result = {
-                result["run_ID"]: {
-                    "best_target": result["best_target"],
-                    "best_individual": result["best_individual"],
-                    "generations": result["generations"],
-                    "evolution_time": result["evolution_time"],
-                    "config": result["config"],
-                    "best_output": result["best_output"],
-                }
-            }
-            results.update(filtered_result)
-
-            # Save run result to file
-            folderpath = add_folder(opt_analysis_folder, target_variable, param)
-
-            filename = f"result_run_{i + 1}.json"
-            filepath = os.path.join(folderpath, filename)
-
-            with open(filepath, 'w') as jsonfile:
-                json.dump(filtered_result, jsonfile)
-
-            filename_readable = f"result-readable_run_{i + 1}.json"
-            filepath_readable = os.path.join(folderpath, filename_readable)
-
-            with open(filepath_readable, 'w') as jsonfile:
-                json.dump(filtered_result, jsonfile, indent=4)
-
-            del eesopt
-
-
-def get_best_result(EES_exe, EES_model, params):
-    base_folder = get_base_folder(EES_model)
-    opt_analysis_folder = add_folder(base_folder, ".optAnalysis")
-
-    target_variable = "EUF_sys"
-    target_display = r"$ EUF_{sys} $"
-    # target_variable = "psi_sys_1"
-    # target_display = r"$ \psi_{sys} $"
-    # target_variable = "m_dot[38]"
-    # target_display = r"$ \dot{m}_{38} $"
-    target_variable_folder = os.path.join(opt_analysis_folder, target_variable)
-
-    # Setup logging
-    logfolder = os.path.join(opt_analysis_folder, target_variable)
-    logger = setup_logging(logfolder)
-
-    for param, values in params.items():
-        folderpath = os.path.join(target_variable_folder, param)
-        results = {}
-        for i, value in enumerate(values):
-            filename = f"result_run_{i + 1}.json"
-            filepath = os.path.join(folderpath, filename)
-
-            with open(filepath, 'r') as jsonfile:
-                results.update(json.load(jsonfile))
-
-        log(logger, f"Análise de: {param}")
-        sorted_results = sorted(
-            [(idx, r["best_target"][target_variable], v) for (idx, r), v in zip(results.items(), values)],
-            key=lambda x: x[1],
-            reverse=True
-        )
-        for result in sorted_results:
-            log(logger, f"ID: {result[0]} | {target_variable}: {result[1]} | {param}: {result[2]}")
-
-        best_result = results[sorted_results[0][0]]
-
-        log(logger, f"Run ID: {sorted_results[0][0]}")
-        log(logger, f"Tempo de Execução: {datetime.timedelta(seconds=best_result['evolution_time'])}")
-        log(logger, f"Gerações para a convergência: {best_result['generations']}")
-        log(logger, f"Melhor valor da função objetivo:")
-        log(logger, best_result["best_target"])
-        log(logger, f"Melhor Indivíduo (Conjunto de variáveis de decisão):")
-        log(logger, {k: round(v, 4) for (k, v) in best_result["best_individual"].items()})
-        log(logger, f"Parâmetros do Algoritmo Genético:")
-        log(logger, best_result["config"])
-        log(logger, "Output referente ao melhor indivíduo: ")
-        log(logger, {k: round(v, 4) for (k, v) in best_result["best_output"].items()})
-        log(logger, " ")
-
-
-def log(logger, message):
-    logger.info(message)
-    print(message)
-
-
-def setup_logging(logfolder):
-    if not os.path.exists(logfolder):
-        os.makedirs(logfolder)
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-
-    formatter = logging.Formatter('%(asctime)s:%(filename)s:%(message)s')
-
-    file_handler = logging.FileHandler(
-        os.path.join(
-            logfolder,
-            f'best-results.log'
-        ))
-    file_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
-
-    return logger
+    paramgraphs = DefaultParamAnalysisGraph(EES_model, "primeiro", results)
+    paramgraphs.set_target_variable(**target_variable)
+    paramgraphs.generate()
 
 
 def main():
@@ -258,49 +134,52 @@ def main():
     }
 
     params = {
-        "population": [10, 15, 25, 50, 100, 150, 200],
+        "population": [
+            {'population': 10},
+            {'population': 15},
+            {'population': 25},
+            {'population': 50},
+            {'population': 100},
+            {'population': 150},
+            {'population': 200},
+        ],
         "crossover_rates": [
-            {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.4, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.6, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.7, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.8, 'method': 'cxTwoPoint', 'params': {}}
+            {'crossover': {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}}},
+            {'crossover': {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}}},
+            {'crossover': {'rate': 0.4, 'method': 'cxTwoPoint', 'params': {}}},
+            {'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}}},
+            {'crossover': {'rate': 0.6, 'method': 'cxTwoPoint', 'params': {}}},
+            {'crossover': {'rate': 0.7, 'method': 'cxTwoPoint', 'params': {}}},
+            {'crossover': {'rate': 0.8, 'method': 'cxTwoPoint', 'params': {}}}
         ],
         "crossover_methods": [
-            {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-            {'rate': 0.5, 'method': 'cxSimulatedBinaryBounded', 'params': {'eta': 3, 'low': low, 'up': up}},
-            {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.4}}
+            {'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}}},
+            {'crossover': {'rate': 0.5, 'method': 'cxSimulatedBinaryBounded', 'params': {'eta': 3, 'low': low, 'up': up}}},
+            {'crossover': {'rate': 0.5, 'method': 'cxBlend', 'params': {'alpha': 0.4}}}
         ],
         "mutation_rates": [
-            {'rate': 0.05, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
-            {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
-            {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
-            {'rate': 0.20, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
-            {'rate': 0.25, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}
+            {'mutation': {'rate': 0.05, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}},
+            {'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}},
+            {'mutation': {'rate': 0.15, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}},
+            {'mutation': {'rate': 0.20, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}},
+            {'mutation': {'rate': 0.25, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}}
         ],
         "mutation_methods": [
-            {'rate': 0.10, 'method': 'mutGaussian', 'params': {'indpb': 0.05, 'mu': mu, 'sigma': 0.15}},
-            {'rate': 0.10, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-            {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+            {'mutation': {'rate': 0.10, 'method': 'mutGaussian', 'params': {'indpb': 0.05, 'mu': mu, 'sigma': 0.15}}},
+            {'mutation': {'rate': 0.10, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}}},
+            {'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}},
         ],
         "selection_methods": [
-            {'method': 'selTournament', 'params': {'tournsize': 5}},
-            {'method': 'selBest', 'params': {}},
-            {'method': 'selRoulette', 'params': {}},
-            {'method': 'selStochasticUniversalSampling', 'params': {}},
+            {'selection': {'method': 'selTournament', 'params': {'tournsize': 5}}},
+            {'selection': {'method': 'selBest', 'params': {}}},
+            {'selection': {'method': 'selRoulette', 'params': {}}},
+            {'selection': {'method': 'selStochasticUniversalSampling', 'params': {}}},
         ]
     }
 
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
-    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
-    # get_best_result(EES_exe, EES_model, params)
-
-    paramAnalysis = OptParamAnalysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
-    paramAnalysis.set_target_variable("EUF_sys", r"$ EUF_{sys} $")
-    results = paramAnalysis.get_result_from_file()
+    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
 
 
 if __name__ == "__main__":
