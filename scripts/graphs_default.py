@@ -9,8 +9,8 @@ import matplotlib.font_manager as font_manager
 
 class GraphsDefault(Graphs):
 
-    def __init__(self, EES_model: str, run_ID: str, results: dict):
-        super().__init__(EES_model, run_ID, results)
+    def __init__(self, base_paths, variable):
+        super().__init__(base_paths, variable)
 
     def get_titles(self, lang):
         if lang in ["pt-BR", "pt_BR", "ptbr"]:

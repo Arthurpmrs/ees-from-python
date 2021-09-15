@@ -6,7 +6,7 @@ import pandas as pd
 from ees.solvemodel import SolveModel
 
 EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-EES_model = r'C:\Root\Universidade\Mestrado\getresults\trigeracao_LiBrH2O_opt.EES'
+EES_model = r'C:\Root\Universidade\Mestrado\Analise\trigeracao_LiBrH2O2.EES'
 
 inputs = {
     'm_dot[9]': 0.0226,

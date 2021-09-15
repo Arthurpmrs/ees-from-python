@@ -22,6 +22,10 @@ class OptParamGraphs:
         plots_folder = add_folder(self.base_path, ".optParamAnalysis", self.run_ID, ".plots")
         return plots_folder
 
+    def set_target_variable(self, target_variable, target_variable_display=""):
+        self.target_variable = target_variable
+        self.target_variable_display = target_variable_display
+
     def set_matplotlib_globalconfig(self):
         plt.style.use("ggplot")
 
@@ -32,9 +36,10 @@ class OptParamGraphs:
         matplotlib.rcParams["mathtext.fontset"] = "cm"
         matplotlib.rcParams["font.family"] = "CMU Serif"
 
+        # matplotlib.rcParams["font.size"] = 13
         axes = {
-            "labelsize": 22,
-            "titlesize": 18,
+            "labelsize": 20,
+            "titlesize": 16,
             "titleweight": "bold",
             "labelweight": "bold",
         }
@@ -43,14 +48,14 @@ class OptParamGraphs:
         lines = {"linewidth": 2}
         matplotlib.rc("lines", **lines)
 
-        legends = {"fontsize": 14}
+        legends = {"fontsize": 11}
         matplotlib.rc("legend", **legends)
 
         savefig = {"dpi": 300}
         matplotlib.rc("savefig", **savefig)
 
         # matplotlib.rcParams["axes.prop_cycle"] = matplotlib.cycler(
-        #     color=["r", "b", "g", "m", "k"]
+        #     color=["r", "b", "g", "m", "navy", "seagreen", "indigo"]
         # )
         matplotlib.rcParams["ytick.labelsize"] = 15
         matplotlib.rcParams["xtick.labelsize"] = 15

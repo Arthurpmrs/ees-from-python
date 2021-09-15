@@ -4,8 +4,8 @@ import json
 import pandas as pd
 import subprocess
 from icecream import ic
-from .parametric import NoModelError
-from .utilites import check_model_path
+from .utilities import NoModelError
+from .utilities import check_model_path
 
 
 class SolveModel:
