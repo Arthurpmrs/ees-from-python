@@ -72,7 +72,7 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
                 for p, v in value["param_value"].items():
                     if isinstance(v, dict):
                         v_unclean = v
-                        v = d_difference(v_unclean, old_dict)
+                        v = d_difference(old_dict, v_unclean)
                         old_dict = v_unclean
                 labels.append(str(v))
                 generations.append(value["generations"])
