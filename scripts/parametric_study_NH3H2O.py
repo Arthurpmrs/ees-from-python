@@ -6,14 +6,14 @@ import pandas as pd
 from ees.parametric import ParametricStudies
 
 
-EES_exe = r'C:\Root\Universidade\EES_antigo\EES.exe'
-EES_model = r'C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_NH3H2O.EES'
+EES_exe = r'C:\Root\Universidade\EES\EES.exe'
+EES_model = r'C:\Root\Universidade\Mestrado\Analise\models\trigeracao_NH3H2O.EES'
 
 inputs = {
     'm_dot[9]': 0.0226,
     'T[1]': 25,
     'T[3]': 468,
-    'T[4]':  763.4,
+    'T[4]': 763.4,
     'T[9]': 25,
     'eta_compressor': 0.85,
     'eta_turbina': 0.85,
@@ -72,7 +72,7 @@ parametric_inputs = {
     # 'X_biogas_ch4': np.linspace(0.4, 0.99, 40),
     # 'epsilon_u': np.linspace(0.5, 0.9, 30),
     # 'epsilon_d': np.linspace(0.5, 0.90, 40),
-    'T[32]': np.linspace(15, 40, 40)
+    'T[32]': np.linspace(20, 35, 40)
 }
 
 
