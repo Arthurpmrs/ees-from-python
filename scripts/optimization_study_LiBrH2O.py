@@ -132,6 +132,16 @@ def main():
         'cvrg_tolerance': 1e-5,
         'verbose': True
     }
+    fast_config = {
+        'seed': 5,
+        'population': 100,
+        'crossover': {'rate': 0.2, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
+        'mutation': {'rate': 0.25, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+        'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
+        'max_generation': 150,
+        'cvrg_tolerance': 1e-5,
+        'verbose': True
+    }
 
     params = {
         "population": [
@@ -177,9 +187,10 @@ def main():
         ]
     }
 
-    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
-    param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
+    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, fast_config)
+    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
 
 
 if __name__ == "__main__":
