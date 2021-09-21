@@ -37,6 +37,7 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
     paramAnalysis.set_optimizer(GAOptimizationStudy)
     # results = paramAnalysis.param_analysis()
     results = paramAnalysis.get_result_from_file()
+    paramAnalysis.compute_best_results()
 
     paramgraphs = DefaultParamAnalysisGraph(EES_model, "primeiro-NH3", results)
     paramgraphs.set_target_variable(**target_variable)
@@ -126,16 +127,16 @@ def main():
         'verbose': True
     }
 
-    # best_config = {
-    #     'seed': 5,
-    #     'population': 150,
-    #     'crossover': {'rate': 0.7, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
-    #     'mutation': {'rate': 0.2, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-    #     'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
-    #     'max_generation': 150,
-    #     'cvrg_tolerance': 1e-5,
-    #     'verbose': True
-    # }
+    best_config = {
+        'seed': 5,
+        'population': 200,
+        'crossover': {'rate': 0.5, 'method': 'cxSimulatedBinaryBounded', 'params': {'eta': 3, 'low': [35, 35, 76.5, 1, 0.5, 68, 15], 'up': [42.5, 45.5, 90, 6, 4.5, 100, 40]}},
+        'mutation': {'rate': 0.2, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': [35, 35, 76, 1, 0, 68, 15], 'up': [42, 45, 90, 6, 4, 100, 40]}},
+        'selection': {'method': 'selStochasticUniversalSampling', 'params': {}},
+        'max_generation': 150,
+        'cvrg_tolerance': 1e-5,
+        'verbose': True
+    }
 
     params = {
         "population": [
