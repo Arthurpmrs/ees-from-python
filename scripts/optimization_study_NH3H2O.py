@@ -32,20 +32,21 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
     target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $"}
     # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
     # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
-    paramAnalysis = OptParamAnalysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params, run_ID="primeiro")
+    paramAnalysis = OptParamAnalysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params, run_ID="primeiro-NH3")
     paramAnalysis.set_target_variable(**target_variable)
     paramAnalysis.set_optimizer(GAOptimizationStudy)
     # results = paramAnalysis.param_analysis()
     results = paramAnalysis.get_result_from_file()
+    paramAnalysis.compute_best_results()
 
-    paramgraphs = DefaultParamAnalysisGraph(EES_model, "primeiro", results)
+    paramgraphs = DefaultParamAnalysisGraph(EES_model, "primeiro-NH3", results)
     paramgraphs.set_target_variable(**target_variable)
     paramgraphs.generate()
 
 
 def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-    EES_model = r'C:\Root\Universidade\Mestrado\Analise\trigeracao_LiBrH2O.EES'
+    EES_model = r'C:\Root\Universidade\Mestrado\Analise\models\trigeracao_NH3H2O.EES'
 
     inputs = {
         'm_dot[9]': 0.0226,
@@ -58,7 +59,7 @@ def main():
         'rp': 3.22,
         'X_biogas_ch4': 0.6,
         'DeltaTmin': 10,
-        'x[18]': 0,
+        'x[18]': 0.9996,
         'Q_evaporador': 12,
         'epsilon_hx': 0.80,
         'eta_bomba': 0.95,
@@ -79,8 +80,11 @@ def main():
         'phi[37]': 0.9,
         'MR': 2.5,
         'T_0': 25,
-        'P_0': 101.325
+        'P_0': 101.325,
+        'epsilon_rhx': 0.8,
+        'Q[22]': 0.975
     }
+
     outputs = ['W_compressor', 'W_turbina', 'W_net', 'eta_brayton', 'Q_gerador', 'Q_absorvedor', 'Q_condensador', 'Q_evaporador',
                'UA_gerador', 'UA_absorvedor', 'UA_condensador', 'UA_evaporador', 'COP_1', 'COP_2', 'v_dot[38]', 'v_dot[32]',
                'm_dot[38]', 'm_dot[32]', 'Q_aquecedor', 'UA_aquecedor', 'RR', 'GOR', 'EUF_sys', 'Exd_compressor', 'psi_compressor',
@@ -91,12 +95,13 @@ def main():
                'psi_aquecedor', 'Exd_hdh', 'psi_hdh', 'psi_sys_1', 'psi_sys_2', 'Exd_sys', 'delta_compressor', 'delta_regenerador',
                'delta_cc', 'delta_turbina', 'delta_absorvedor', 'delta_bomba', 'delta_vs', 'delta_vr', 'delta_hx', 'delta_gerador',
                'delta_condensador', 'delta_evaporador', 'delta_umidificador', 'delta_desumidificador', 'delta_aquecedor',
-               'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh']
+               'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh', 'Exd_retificador',
+               'Exd_rhx', 'epsilon_rhx']
 
     decision_variables = {
-        'T[10]': (35, 44),
-        'T[19]': (35, 48),
-        'T[13]': (75, 90),
+        'T[10]': (35, 42.5),
+        'T[19]': (35, 45.5),
+        'T[13]': (76.5, 90),
         'T[22]': (1, 6),
         'MR': (0.5, 4.5),
         'T[34]': (68, 100),
@@ -124,20 +129,10 @@ def main():
 
     best_config = {
         'seed': 5,
-        'population': 150,
-        'crossover': {'rate': 0.7, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
-        'mutation': {'rate': 0.2, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-        'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
-        'max_generation': 150,
-        'cvrg_tolerance': 1e-5,
-        'verbose': True
-    }
-    fast_config = {
-        'seed': 5,
-        'population': 100,
-        'crossover': {'rate': 0.2, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
-        'mutation': {'rate': 0.25, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
-        'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
+        'population': 200,
+        'crossover': {'rate': 0.5, 'method': 'cxSimulatedBinaryBounded', 'params': {'eta': 3, 'low': [35, 35, 76.5, 1, 0.5, 68, 15], 'up': [42.5, 45.5, 90, 6, 4.5, 100, 40]}},
+        'mutation': {'rate': 0.2, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': [35, 35, 76, 1, 0, 68, 15], 'up': [42, 45, 90, 6, 4, 100, 40]}},
+        'selection': {'method': 'selStochasticUniversalSampling', 'params': {}},
         'max_generation': 150,
         'cvrg_tolerance': 1e-5,
         'verbose': True
@@ -189,7 +184,6 @@ def main():
 
     optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
-    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, fast_config)
     # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
 
 

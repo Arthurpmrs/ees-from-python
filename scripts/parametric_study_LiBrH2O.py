@@ -7,7 +7,7 @@ from ees.parametric import ParametricStudies
 
 # EES_exe = r'C:\Root\Universidade\EES\EES.exe'
 EES_exe = r'C:\Root\Universidade\EES_antigo\EES.exe'
-EES_model = r'C:\Root\Universidade\Mestrado\Dissertação\Analises\models\trigeracao_LiBrH2O.EES'
+EES_model = r'C:\Root\Universidade\Mestrado\Analise\trigeracao_LiBrH2O2.EES'
 
 inputs = {
     'm_dot[9]': 0.0226,

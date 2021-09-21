@@ -15,7 +15,6 @@ from rich import print
 from deap import base
 from deap import creator
 from deap import tools
-from .parametric import NoModelError
 from .optimization import OptimizationStudy
 
 
@@ -62,7 +61,7 @@ class GAOptimizationStudy(OptimizationStudy):
 
         self.is_ready['optimizer'] = True
 
-    def execute_GA(self, config):
+    def execute(self, config):
         result = {}
         try:
             self.setup_DDE()

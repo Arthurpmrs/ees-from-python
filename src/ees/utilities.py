@@ -1,6 +1,27 @@
 import os
 import re
 import csv
+from typing import Union
+
+
+class NoModelError(Exception):
+    """Raised when Model file does not exists."""
+
+
+class ParamAnalysisMissingError(Exception):
+    """Raised when a Param Analysis is missing."""
+
+
+def check_model_path(path):
+    """Check if model path is absolute and check if file exists."""
+
+    if not os.path.isabs(path):
+        path = os.path.join(os.getcwd(), path)
+
+    if not os.path.exists(path):
+        raise NoModelError("The model does not exist in the path provided.")
+
+    return path
 
 
 def cleanup_csv(csv_filepath):
@@ -51,7 +72,14 @@ def add_folder(base_folder: str, *folders: str) -> str:
     return new_folder
 
 
+def d_difference(d1: dict, d2: dict) -> Union[str, int, float]:
+    for (_, v1), (_, v2) in zip(d1.items(), d2.items()):
+        if v1 != v2:
+            return v2
+
+
 def main():
+    """Experiment with utilites functions."""
     base_folder = os.getcwd()
     print(add_folder(base_folder, 'teste', 'test2'))
 
