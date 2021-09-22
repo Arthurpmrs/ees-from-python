@@ -8,7 +8,7 @@ import matplotlib.font_manager as font_manager
 
 class OptGraph:
 
-    def __init__(self, base_path: str, idx: int = None):
+    def __init__(self, base_path: str, idx: str = None):
         self.base_path = base_path
         if idx:
             self.idx = idx
@@ -19,7 +19,7 @@ class OptGraph:
         self.set_matplotlib_globalconfig()
 
     def set_plots_folder(self) -> str:
-        plots_folder = os.path.join(self.base_path, ".optPlots")
+        plots_folder = os.path.join(self.base_path, ".opt", self.idx, ".plots")
 
         if not os.path.exists(plots_folder):
             os.makedirs(plots_folder)
@@ -27,16 +27,17 @@ class OptGraph:
         return plots_folder
 
     def last_generated_idx(self) -> int:
-        results_folder = os.path.join(self.base_path, ".optResults")
+        ids_folder = os.path.join(self.base_path, ".opt")
         idxs = []
-        for file in os.listdir(results_folder):
-            if os.path.isfile(os.path.join(results_folder, file)):
-                idxs.append(int(file.split("_")[0]))
+        for dir in os.listdir(ids_folder):
+            filepath = os.path.join(ids_folder, dir)
+            if os.path.isdir(filepath):
+                idxs.append(dir)
         last_generated_idx = sorted(idxs, reverse=True)[0]
         return last_generated_idx
 
     def load_results(self, idx: int) -> dict:
-        filename = os.path.join(self.base_path, ".optResults", f"{idx}_results.json")
+        filename = os.path.join(self.base_path, ".opt", idx, ".results", f"results.json")
         with open(filename, "r") as jsonfile:
             results = json.load(jsonfile)
         return results
@@ -106,7 +107,7 @@ class OptGraph:
         ax.plot(target_history.loc[:, "best_target"], marker="o")
         fig.tight_layout()
         fig.savefig(
-            os.path.join(self.plots_folder, f"{self.idx}_plot_{lang}_fitness-history_{target_name}.svg"),
+            os.path.join(self.plots_folder, f"plot_{lang}_fitness-history_{target_name}.svg"),
         )
         fig.clf()
         fig2, ax2 = plt.subplots(num="error", figsize=(9.2, 7))
@@ -116,6 +117,6 @@ class OptGraph:
         ax2.plot(target_history.loc[:, "error"], marker="o")
         fig2.tight_layout()
         fig2.savefig(
-            os.path.join(self.plots_folder, f"{self.idx}_plot_{lang}_error-history_{target_name}.svg"),
+            os.path.join(self.plots_folder, f"plot_{lang}_error-history_{target_name}.svg"),
         )
         fig2.clf()
