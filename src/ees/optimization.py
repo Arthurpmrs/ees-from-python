@@ -17,13 +17,13 @@ from .utilities import check_model_path
 
 class OptimizationStudy:
 
-    def __init__(self, EES_exe, EES_model, base_case_inputs, outputs):
+    def __init__(self, EES_exe, EES_model, base_case_inputs, outputs, runID=None):
         self.EES_exe = EES_exe
         self.EES_model = check_model_path(EES_model)
         self.base_case_inputs = base_case_inputs
         self.outputs = outputs
+        self.runID = runID if runID else str(round(time.time()))
         self.paths = self.set_paths()
-        self.runID = round(time.time())
         self.logger = self.setup_logging()
         self.consecutive_error_count = 0
         self.is_ready = {
@@ -44,11 +44,13 @@ class OptimizationStudy:
             model_folder,
             '.'.join(model_filename.split('.')[:-1])
         )
+        id_folder = os.path.join(base_folder, ".opt", self.runID)
         paths = {
             "base_folder": base_folder,
-            "plots": os.path.join(base_folder, ".optPlots"),
-            "logs": os.path.join(base_folder, ".optLogs"),
-            "results": os.path.join(base_folder, ".optResults")
+            "id_folder": id_folder,
+            "plots": os.path.join(id_folder, ".plots"),
+            "logs": os.path.join(id_folder, ".logs"),
+            "results": os.path.join(id_folder, ".results")
         }
         # Check if folders exists and if not, creates them.
         for _, path in paths.items():
@@ -182,8 +184,6 @@ class OptimizationStudy:
 
     def setup_logging(self):
         logfolder = self.paths['logs']
-        if not os.path.exists(logfolder):
-            os.makedirs(logfolder)
 
         logger = logging.getLogger(__name__)
         logger.setLevel(logging.INFO)
@@ -193,7 +193,7 @@ class OptimizationStudy:
         file_handler = logging.FileHandler(
             os.path.join(
                 logfolder,
-                f'{self.runID}_{self.__class__.__name__}.log'
+                f'{self.__class__.__name__}.log'
             ))
         file_handler.setFormatter(formatter)
 

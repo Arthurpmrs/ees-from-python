@@ -16,8 +16,8 @@ from graphs_default_param_analysis import DefaultParamAnalysisGraph
 
 def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
     """Run one optimization case."""
-    target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $"}
-    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
+    # target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $"}
+    target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
     # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
     eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
     eesopt.set_decision_variables(decision_variables)
@@ -45,7 +45,7 @@ def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base
 
 def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-    EES_model = r'C:\Root\Universidade\Mestrado\Analise\trigeracao_LiBrH2O.EES'
+    EES_model = r'C:\Root\GoogleDrive\Unicamp\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise\trigeracao_LiBrH2O_opt.EES'
 
     inputs = {
         'm_dot[9]': 0.0226,
@@ -187,8 +187,8 @@ def main():
         ]
     }
 
-    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
+    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
+    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, fast_config)
     # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
 

@@ -262,9 +262,9 @@ class GAOptimizationStudy(OptimizationStudy):
         return results
 
     def save_to_json(self, results, filename):
-        with open(os.path.join(self.paths["results"], f"{self.runID}_{filename}.json"), "w") as jsonfile:
+        with open(os.path.join(self.paths["results"], f"{filename}.json"), "w") as jsonfile:
             json.dump(results, jsonfile)
-        with open(os.path.join(self.paths["results"], f"{self.runID}_readable-{filename}.json"), "w") as jsonfile:
+        with open(os.path.join(self.paths["results"], f"readable-{filename}.json"), "w") as jsonfile:
             json.dump(results, jsonfile, indent=4)
 
     def ind_to_dict(self, ind):

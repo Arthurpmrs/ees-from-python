@@ -8,7 +8,7 @@ import matplotlib.font_manager as font_manager
 
 class OptGraph:
 
-    def __init__(self, base_path: str, idx: int = None):
+    def __init__(self, base_path: str, idx: str = None):
         self.base_path = base_path
         if idx:
             self.idx = idx
@@ -19,7 +19,7 @@ class OptGraph:
         self.set_matplotlib_globalconfig()
 
     def set_plots_folder(self) -> str:
-        plots_folder = os.path.join(self.base_path, ".optPlots")
+        plots_folder = os.path.join(self.base_path, ".opt", self.idx, ".plots")
 
         if not os.path.exists(plots_folder):
             os.makedirs(plots_folder)
@@ -27,16 +27,16 @@ class OptGraph:
         return plots_folder
 
     def last_generated_idx(self) -> int:
-        results_folder = os.path.join(self.base_path, ".optResults")
+        ids_folder = os.path.join(self.base_path, ".opt")
         idxs = []
-        for file in os.listdir(results_folder):
-            if os.path.isfile(os.path.join(results_folder, file)):
-                idxs.append(int(file.split("_")[0]))
+        for dir in os.listdir(ids_folder):
+            if os.path.isdir(dir):
+                idxs.append(dir)
         last_generated_idx = sorted(idxs, reverse=True)[0]
         return last_generated_idx
 
     def load_results(self, idx: int) -> dict:
-        filename = os.path.join(self.base_path, ".optResults", f"{idx}_results.json")
+        filename = os.path.join(self.base_path, idx, ".opt", ".results", f"results.json")
         with open(filename, "r") as jsonfile:
             results = json.load(jsonfile)
         return results
