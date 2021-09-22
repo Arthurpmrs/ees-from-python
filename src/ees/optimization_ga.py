@@ -20,8 +20,8 @@ from .optimization import OptimizationStudy
 
 class GAOptimizationStudy(OptimizationStudy):
 
-    def __init__(self, EES_exe, EES_model, base_case_inputs, outputs):
-        super().__init__(EES_exe, EES_model, base_case_inputs, outputs)
+    def __init__(self, EES_exe, EES_model, base_case_inputs, outputs, runID=None):
+        super().__init__(EES_exe, EES_model, base_case_inputs, outputs, runID)
 
     def feasible(self, individual):
         self.eval_EES_model(individual)

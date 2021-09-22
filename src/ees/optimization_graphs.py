@@ -30,13 +30,14 @@ class OptGraph:
         ids_folder = os.path.join(self.base_path, ".opt")
         idxs = []
         for dir in os.listdir(ids_folder):
-            if os.path.isdir(dir):
+            filepath = os.path.join(ids_folder, dir)
+            if os.path.isdir(filepath):
                 idxs.append(dir)
         last_generated_idx = sorted(idxs, reverse=True)[0]
         return last_generated_idx
 
     def load_results(self, idx: int) -> dict:
-        filename = os.path.join(self.base_path, idx, ".opt", ".results", f"results.json")
+        filename = os.path.join(self.base_path, ".opt", idx, ".results", f"results.json")
         with open(filename, "r") as jsonfile:
             results = json.load(jsonfile)
         return results
@@ -106,7 +107,7 @@ class OptGraph:
         ax.plot(target_history.loc[:, "best_target"], marker="o")
         fig.tight_layout()
         fig.savefig(
-            os.path.join(self.plots_folder, f"{self.idx}_plot_{lang}_fitness-history_{target_name}.svg"),
+            os.path.join(self.plots_folder, f"plot_{lang}_fitness-history_{target_name}.svg"),
         )
         fig.clf()
         fig2, ax2 = plt.subplots(num="error", figsize=(9.2, 7))
@@ -116,6 +117,6 @@ class OptGraph:
         ax2.plot(target_history.loc[:, "error"], marker="o")
         fig2.tight_layout()
         fig2.savefig(
-            os.path.join(self.plots_folder, f"{self.idx}_plot_{lang}_error-history_{target_name}.svg"),
+            os.path.join(self.plots_folder, f"plot_{lang}_error-history_{target_name}.svg"),
         )
         fig2.clf()

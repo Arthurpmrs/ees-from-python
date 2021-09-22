@@ -12,6 +12,7 @@ from ees.optimization_graphs import OptGraph
 from ees.utilities import get_base_folder, add_folder
 from ees.optimization_param_analysis import OptParamAnalysis
 from graphs_default_param_analysis import DefaultParamAnalysisGraph
+from ees.utilities import get_base_folder
 
 
 def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
@@ -23,7 +24,7 @@ def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_c
     eesopt.set_decision_variables(decision_variables)
     eesopt.set_target_variable(**target_variable)
     eesopt.execute(base_config)
-    graph = OptGraph(eesopt.paths["base_folder"])
+    graph = OptGraph(get_base_folder(EES_model))
     graph.generate(r"$ EUF_{sys} $", lang="pt-BR")
     graph.generate(r"$ EUF_{sys} $", lang="en-US")
 
