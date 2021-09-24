@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
+from matplotlib import ticker
 
 
 class DefaultParamAnalysisGraph(OptParamGraphs):
@@ -87,6 +88,143 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
             dv_df = pd.DataFrame(decision_variables, index=labels)
 
             width = 0.35
+            fig = plt.figure(figsize=(10, 10))
+
+            sub1 = fig.add_subplot(2, 2, (1, 2))
+            rec1 = sub1.bar(labels, target_values, width=width)
+            sub1.set_title(self.target_variable_display)
+            sub1.set_ylabel(self.target_variable_display)
+            sub1.bar_label(rec1, padding=3, fontsize=12, fontfamily="CMU Serif")
+            yticks = sub1.get_yticks()
+            np.append(yticks, (yticks[-1] - yticks[-2]))
+            sub1.set_yticks(yticks)
+            # sub1.set_ylim([0, math.ceil(max(target_values))])
+
+            sub2 = fig.add_subplot(2, 2, 3)
+            rec2 = sub2.bar(labels, generations, width=width)
+            sub2.bar_label(rec2, padding=3, fontsize=12, fontfamily="CMU Serif", wrap=True)
+            sub2.set_title(titles["generations"])
+            sub2.set_ylabel(titles["generations"])
+            yticks = sub2.get_yticks()
+            np.append(yticks, (yticks[-1] - yticks[-2]))
+            sub2.set_yticks(yticks)
+
+            sub3 = fig.add_subplot(2, 2, 4)
+            rec3 = sub3.bar(labels, times, width=width)
+            rec3 = sub3.bar_label(rec3, padding=3, fontsize=12, fontfamily="CMU Serif", wrap=True)
+            sub3.set_title(titles["time-title"])
+            sub3.set_ylabel(titles["time-axis"])
+            yticks = sub3.get_yticks()
+            np.append(yticks, (yticks[-1] - yticks[-2]))
+            sub3.set_yticks(yticks)
+
+            fig.tight_layout()
+
+            filename = os.path.join(self.plots_folder, f"{lang}_analysis-of-{param}.jpg")
+            plt.savefig(filename)
+            fig.clf()
+
+    def generate_log(self, lang: str = "pt-BR"):
+        titles = self.get_titles(lang)
+        yticks = []
+        for param, values in self.results.items():
+            labels = []
+            generations = []
+            times = []
+            target_values = []
+            decision_variables = []
+            old_dict = values[list(values.keys())[-1]]["param_value"][next(iter(values[list(values.keys())[-1]]["param_value"]))]
+            for idx, value in values.items():
+                target_variable = list(value["best_target"].keys())[0]
+                for p, v in value["param_value"].items():
+                    if isinstance(v, dict):
+                        v_unclean = v
+                        v = d_difference(old_dict, v_unclean)
+                        old_dict = v_unclean
+                labels.append(str(v))
+                generations.append(value["generations"])
+                times.append(round(value["evolution_time"]))
+                target_values.append(value["best_target"][next(iter(value["best_target"]))])
+                decision_variables.append(value["best_individual"])
+
+            for i, label in enumerate(labels):
+                if label in titles.keys():
+                    labels[i] = titles[label]
+
+            dv_df = pd.DataFrame(decision_variables, index=labels)
+
+            width = 0.35
+            fig = plt.figure(figsize=(10, 10))
+
+            sub1 = fig.add_subplot(2, 2, (1, 2))
+
+            # Arredondando para 4 casos para evitar problemas de visualização no gráfico log
+            target_values = [round(v, 4) for v in target_values]
+
+            rec1 = sub1.bar(labels, target_values, width=width)
+            sub1.set_title(self.target_variable_display)
+            sub1.set_ylabel(self.target_variable_display)
+            sub1.bar_label(rec1, padding=3, fontsize=12, fontfamily="CMU Serif")
+
+            # Transforma o gráfico de barras na escala logarítimica.
+            sub1.set_yscale("log")
+            sub1.yaxis.set_minor_formatter(ticker.FormatStrFormatter('%2.4f'))
+
+            ticks = sub1.get_yticks(minor=True)
+            sub1.set_ylim(sub1.get_ylim()[0], ticks[-1])
+
+            sub2 = fig.add_subplot(2, 2, 3)
+            rec2 = sub2.bar(labels, generations, width=width)
+            sub2.bar_label(rec2, padding=3, fontsize=12, fontfamily="CMU Serif", wrap=True)
+            sub2.set_title(titles["generations"])
+            sub2.set_ylabel(titles["generations"])
+            yticks = sub2.get_yticks()
+            sub2.set_ylim(sub2.get_ylim()[0], yticks[-1])
+
+            sub3 = fig.add_subplot(2, 2, 4)
+            rec3 = sub3.bar(labels, times, width=width)
+            rec3 = sub3.bar_label(rec3, padding=3, fontsize=12, fontfamily="CMU Serif", wrap=True)
+            sub3.set_title(titles["time-title"])
+            sub3.set_ylabel(titles["time-axis"])
+            yticks = sub3.get_yticks()
+            sub3.set_ylim(sub3.get_ylim()[0], yticks[-1])
+
+            fig.tight_layout()
+
+            filename = os.path.join(self.plots_folder, f"{lang}_log_analysis-of-{param}.jpg")
+            plt.savefig(filename)
+            fig.clf()
+
+    def generate_old(self, lang: str = "pt-BR"):
+        titles = self.get_titles(lang)
+        yticks = []
+        for param, values in self.results.items():
+            labels = []
+            generations = []
+            times = []
+            target_values = []
+            decision_variables = []
+            old_dict = values[list(values.keys())[-1]]["param_value"][next(iter(values[list(values.keys())[-1]]["param_value"]))]
+            for idx, value in values.items():
+                target_variable = list(value["best_target"].keys())[0]
+                for p, v in value["param_value"].items():
+                    if isinstance(v, dict):
+                        v_unclean = v
+                        v = d_difference(old_dict, v_unclean)
+                        old_dict = v_unclean
+                labels.append(str(v))
+                generations.append(value["generations"])
+                times.append(round(value["evolution_time"]))
+                target_values.append(value["best_target"][next(iter(value["best_target"]))])
+                decision_variables.append(value["best_individual"])
+
+            for i, label in enumerate(labels):
+                if label in titles.keys():
+                    labels[i] = titles[label]
+
+            dv_df = pd.DataFrame(decision_variables, index=labels)
+
+            width = 0.35
             fig = plt.figure(figsize=(10, 14))
 
             sub1 = fig.add_subplot(3, 2, (1, 2))
@@ -137,6 +275,6 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
                                pos.width,
                                pos.height + 0.07 * 0.45])
 
-            filename = os.path.join(self.plots_folder, f"analysis-of-{param}.jpg")
+            filename = os.path.join(self.plots_folder, f"{lang}_analysis-of-{param}.jpg")
             plt.savefig(filename)
             fig.clf()

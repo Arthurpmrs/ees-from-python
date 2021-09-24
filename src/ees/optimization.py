@@ -6,7 +6,6 @@ import logging
 import traceback
 import win32ui
 import dde
-import pyautogui
 import pyperclip
 import subprocess
 import pandas as pd
