@@ -1,3 +1,4 @@
+from ctypes import ArgumentError
 import os
 import sys
 import math
@@ -58,9 +59,16 @@ class OptimizationStudy:
 
         return paths
 
-    def set_target_variable(self, target_variable, target_variable_display=""):
+    def set_target_variable(self, target_variable, target_variable_display="", problem="max"):
         self.target_variable = target_variable
         self.target_variable_display = target_variable_display
+        self.optimization_problem = problem.lower()
+        if problem.lower() == "min":
+            self.invalid_target_value = math.inf
+        elif problem.lower() == "max":
+            self.invalid_target_value = -math.inf
+        else:
+            raise ArgumentError("Wrong problem value. Must be max or min.")
         self.is_ready['target_variable'] = True
 
     def set_decision_variables(self, decision_variables):
@@ -126,7 +134,7 @@ class OptimizationStudy:
         # Remove 0 and negative values from decision variables
         for variable, limits in zip(individual, self.decision_variables.values()):
             if variable <= 0 or (variable < limits[0] or variable > limits[1]):
-                return (0, )
+                return (self.invalid_target_value, )
 
         try:
             self.prepare_inputs(individual)
@@ -135,7 +143,7 @@ class OptimizationStudy:
             self.consecutive_error_count = 0
         except dde.error as e:
             self.dde_error_handler(e)
-            target_variable = 0
+            target_variable = self.invalid_target_value
 
         return (target_variable, )
 
@@ -180,8 +188,8 @@ class OptimizationStudy:
             self.output_dict.update({output: value})
 
         if error_has_ocorred or error_count > 3:
-            self.log(">> Erro: O EES não exportou valores corretos. Variável target será 0.")
-            self.output_dict.update({self.target_variable: 0})
+            self.log(">> Erro: O EES não exportou valores corretos. O indivíduo é inválido.")
+            self.output_dict.update({self.target_variable: self.invalid_target_value})
 
         return self.output_dict[self.target_variable]
 

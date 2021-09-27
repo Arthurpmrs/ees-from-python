@@ -199,7 +199,7 @@ def main():
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
 
-    target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
+    target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
     optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, test_config, runID="TesteEstouro")
 
     # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
