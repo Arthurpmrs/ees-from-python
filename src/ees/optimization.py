@@ -167,15 +167,19 @@ class OptimizationStudy:
             results.extend(result.split(" "))
 
         self.output_dict = {}
+        error_count = 0
         for output, result in zip(self.outputs, results):
             try:
                 value = float(result)
+                # Prevents EES from returning values of a run thar has not converged. I.E. some variables have their guess value.
+                if result == "1.00000000E+00":
+                    error_count += 1
             except ValueError:
                 value = 0
                 error_has_ocorred = True
             self.output_dict.update({output: value})
 
-        if error_has_ocorred:
+        if error_has_ocorred or error_count > 3:
             self.log(">> Erro: O EES não exportou valores corretos. Variável target será 0.")
             self.output_dict.update({self.target_variable: 0})
 

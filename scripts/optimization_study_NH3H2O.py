@@ -1,4 +1,5 @@
 import os
+from subprocess import run
 import sys
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 import json
@@ -184,12 +185,26 @@ def main():
         ]
     }
 
+    test_config = {
+        'seed': 5,
+        'population': 200,
+        'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
+        'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
+        'selection': {'method': 'selTournament', 'params': {'tournsize': 5}},
+        'max_generation': 150,
+        'cvrg_tolerance': 1e-5,
+        'verbose': True
+    }
+
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
     # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
 
-    target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
-    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-                   decision_variables, base_config, params, runID="analise_psi_sys_nh3-h2o")
+    target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
+    optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, test_config, runID="TesteEstouro")
+
+    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
+    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+    #                decision_variables, base_config, params, runID="analise_psi_sys_nh3-h2o")
 
     # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
     # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,

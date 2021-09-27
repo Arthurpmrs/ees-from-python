@@ -27,7 +27,7 @@ class GAOptimizationStudy(OptimizationStudy):
         self.eval_EES_model(individual)
         check = []
         for _, value in self.output_dict.items():
-            if value > 0:
+            if value >= 0:
                 check.append(True)
             else:
                 check.append(False)
