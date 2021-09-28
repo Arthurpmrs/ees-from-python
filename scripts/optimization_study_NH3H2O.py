@@ -1,4 +1,5 @@
 import os
+from subprocess import run
 import sys
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 import json
@@ -12,41 +13,44 @@ from ees.optimization_graphs import OptGraph
 from ees.utilities import get_base_folder, add_folder
 from ees.optimization_param_analysis import OptParamAnalysis
 from graphs_default_param_analysis import DefaultParamAnalysisGraph
+from ees.utilities import get_base_folder
 
 
-def optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config):
+def optimization(EES_exe, EES_model, target_variable, inputs, outputs,
+                 decision_variables, base_config, runID):
     """Run one optimization case."""
-    target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $"}
-    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
-    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
-    eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs)
+
+    eesopt = GAOptimizationStudy(EES_exe, EES_model, inputs, outputs, runID=runID)
     eesopt.set_decision_variables(decision_variables)
     eesopt.set_target_variable(**target_variable)
     eesopt.execute(base_config)
-    graph = OptGraph(eesopt.paths["base_folder"])
-    graph.generate(r"$ EUF_{sys} $", lang="pt-BR")
-    graph.generate(r"$ EUF_{sys} $", lang="en-US")
+    graph = OptGraph(get_base_folder(EES_model), idx=runID)
+    graph.generate(target_variable["target_variable_display"], lang="pt-BR")
+    graph.generate(target_variable["target_variable_display"], lang="en-US")
 
 
-def param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params):
-    target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $"}
-    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
-    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
-    paramAnalysis = OptParamAnalysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params, run_ID="primeiro-NH3")
+def param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+                   decision_variables, base_config, params, runID):
+    """Run parametric analysis."""
+
+    paramAnalysis = OptParamAnalysis(EES_exe, EES_model, inputs, outputs,
+                                     decision_variables, base_config, params, run_ID=runID)
     paramAnalysis.set_target_variable(**target_variable)
     paramAnalysis.set_optimizer(GAOptimizationStudy)
-    # results = paramAnalysis.param_analysis()
+    results = paramAnalysis.param_analysis()
     results = paramAnalysis.get_result_from_file()
-    paramAnalysis.compute_best_results()
 
-    paramgraphs = DefaultParamAnalysisGraph(EES_model, "primeiro-NH3", results)
+    # Geração dos Gráficos
+    paramgraphs = DefaultParamAnalysisGraph(EES_model, runID, results)
     paramgraphs.set_target_variable(**target_variable)
-    paramgraphs.generate()
+    paramgraphs.generate(lang="pt-BR")
+    paramgraphs.generate(lang="en-US")
+    paramgraphs.generate_log()
 
 
 def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-    EES_model = r'C:\Root\Universidade\Mestrado\Analise\models\trigeracao_NH3H2O.EES'
+    EES_model = r'C:\Root\Drive\Unicamp\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise\trigeracao_NH3H2O.EES'
 
     inputs = {
         'm_dot[9]': 0.0226,
@@ -104,8 +108,7 @@ def main():
         'T[13]': (76.5, 90),
         'T[22]': (1, 6),
         'MR': (0.5, 4.5),
-        'T[34]': (68, 100),
-        'T[32]': (15, 40)
+        'T[34]': (68, 100)
     }
 
     low = tuple([v[0] for _, v in decision_variables.items()])
@@ -182,9 +185,24 @@ def main():
         ]
     }
 
-    optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
-    # param_analysis(EES_exe, EES_model, inputs, outputs, decision_variables, base_config, params)
+    # target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $"}
+    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
+    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
+
+    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, base_config, runID="")
+    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, best_config, runID="")
+
+    target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $", "problem": "max"}
+    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+                   decision_variables, base_config, params, runID="new_analise_EUF_NH3H2O")
+
+    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $", "problem": "max"}
+    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+    #                decision_variables, base_config, params, runID="new_analise_PSI_NH3H2O")
+
+    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
+    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+    #                decision_variables, base_config, params, runID="new_analise_m38_NH3H2O")
 
 
 if __name__ == "__main__":
