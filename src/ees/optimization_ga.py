@@ -37,7 +37,6 @@ class GAOptimizationStudy(OptimizationStudy):
         return False
 
     def setup_optimizer(self, config):
-        print(self.optimization_problem)
         if self.optimization_problem == "min":
             creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
             creator.create("Individual", list, fitness=creator.FitnessMin)

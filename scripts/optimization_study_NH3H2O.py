@@ -38,18 +38,19 @@ def param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
     paramAnalysis.set_target_variable(**target_variable)
     paramAnalysis.set_optimizer(GAOptimizationStudy)
     results = paramAnalysis.param_analysis()
-    # results = paramAnalysis.get_result_from_file()
+    results = paramAnalysis.get_result_from_file()
 
     # Geração dos Gráficos
     paramgraphs = DefaultParamAnalysisGraph(EES_model, runID, results)
     paramgraphs.set_target_variable(**target_variable)
-    paramgraphs.generate()
+    paramgraphs.generate(lang="pt-BR")
+    paramgraphs.generate(lang="en-US")
     paramgraphs.generate_log()
 
 
 def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-    EES_model = r'C:\Root\Drive\Unicamp\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise\trigeracao_NH3H2O_opt.EES'
+    EES_model = r'C:\Root\Drive\Unicamp\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise\trigeracao_NH3H2O.EES'
 
     inputs = {
         'm_dot[9]': 0.0226,
@@ -107,8 +108,7 @@ def main():
         'T[13]': (76.5, 90),
         'T[22]': (1, 6),
         'MR': (0.5, 4.5),
-        'T[34]': (68, 100),
-        'T[32]': (15, 40)
+        'T[34]': (68, 100)
     }
 
     low = tuple([v[0] for _, v in decision_variables.items()])
@@ -185,30 +185,24 @@ def main():
         ]
     }
 
-    test_config = {
-        'seed': 5,
-        'population': 200,
-        'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-        'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
-        'selection': {'method': 'selTournament', 'params': {'tournsize': 5}},
-        'max_generation': 150,
-        'cvrg_tolerance': 1e-5,
-        'verbose': True
-    }
-
-    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, base_config)
-    # optimization(EES_exe, EES_model, inputs, outputs, decision_variables, best_config)
-
-    target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
-    optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, test_config, runID="TesteEstouro")
-
+    # target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $"}
     # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $"}
-    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="analise_psi_sys_nh3-h2o")
-
     # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $"}
+
+    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, base_config, runID="")
+    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, best_config, runID="")
+
+    target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $", "problem": "max"}
+    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+                   decision_variables, base_config, params, runID="new_analise_EUF_NH3H2O")
+
+    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $", "problem": "max"}
     # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="analise_m_38")
+    #                decision_variables, base_config, params, runID="new_analise_PSI_NH3H2O")
+
+    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
+    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+    #                decision_variables, base_config, params, runID="new_analise_m38_NH3H2O")
 
 
 if __name__ == "__main__":
