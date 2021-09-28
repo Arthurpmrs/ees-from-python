@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import math
 import json
 import logging
 import datetime
@@ -41,9 +42,10 @@ class OptParamAnalysis:
     def set_optimizer(self, optimizer: OptimizationStudy):
         self.optimizer = optimizer
 
-    def set_target_variable(self, target_variable, target_variable_display=""):
+    def set_target_variable(self, target_variable, target_variable_display="", problem="max"):
         self.target_variable = target_variable
         self.target_variable_display = target_variable_display
+        self.optimization_problem = problem.lower()
 
     def setup_logging(self) -> logging.Logger:
         """Logging configuration."""
@@ -82,7 +84,7 @@ class OptParamAnalysis:
                 filtered_result = {}
                 eesopt = self.optimizer(self.EES_exe, self.EES_model, self.inputs, self.outputs)
                 eesopt.set_decision_variables(self.decision_variables)
-                eesopt.set_target_variable(self.target_variable, self.target_variable_display)
+                eesopt.set_target_variable(self.target_variable, self.target_variable_display, self.optimization_problem)
                 result = eesopt.execute(config)
 
                 if result == {}:

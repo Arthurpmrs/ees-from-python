@@ -1,3 +1,4 @@
+from ctypes import ArgumentError
 import os
 import time
 import math
@@ -27,7 +28,7 @@ class GAOptimizationStudy(OptimizationStudy):
         self.eval_EES_model(individual)
         check = []
         for _, value in self.output_dict.items():
-            if value > 0:
+            if value >= 0:
                 check.append(True)
             else:
                 check.append(False)
@@ -36,9 +37,14 @@ class GAOptimizationStudy(OptimizationStudy):
         return False
 
     def setup_optimizer(self, config):
-        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
-        creator.create("Individual", list, fitness=creator.FitnessMax)
-
+        if self.optimization_problem == "min":
+            creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+            creator.create("Individual", list, fitness=creator.FitnessMin)
+        elif self.optimization_problem == "max":
+            creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+            creator.create("Individual", list, fitness=creator.FitnessMax)
+        else:
+            raise ArgumentError("Not valid optimization problem.")
         self.toolbox = base.Toolbox()
 
         attrs = []
@@ -57,7 +63,7 @@ class GAOptimizationStudy(OptimizationStudy):
         self.toolbox.register("mate", getattr(tools, config["crossover"]["method"]), **config["crossover"]["params"])
         self.toolbox.register("mutate", getattr(tools, config["mutation"]["method"]), **config["mutation"]["params"])
         self.toolbox.register("select", getattr(tools, config["selection"]["method"]), **config["selection"]["params"])
-        self.toolbox.decorate("evaluate", tools.DeltaPenalty(self.feasible, 0))
+        self.toolbox.decorate("evaluate", tools.DeltaPenalty(self.feasible, self.invalid_target_value))
 
         self.is_ready['optimizer'] = True
 
