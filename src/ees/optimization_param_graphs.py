@@ -22,9 +22,10 @@ class OptParamGraphs:
         plots_folder = add_folder(self.base_path, ".optParamAnalysis", self.run_ID, ".plots")
         return plots_folder
 
-    def set_target_variable(self, target_variable, target_variable_display=""):
+    def set_target_variable(self, target_variable, target_variable_display="", problem="max"):
         self.target_variable = target_variable
         self.target_variable_display = target_variable_display
+        self.optimization_problem = problem
 
     def set_matplotlib_globalconfig(self):
         plt.style.use("ggplot")
