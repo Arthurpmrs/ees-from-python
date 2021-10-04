@@ -36,7 +36,7 @@ def param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
                                      decision_variables, base_config, params, run_ID=runID)
     paramAnalysis.set_target_variable(**target_variable)
     paramAnalysis.set_optimizer(GAOptimizationStudy)
-    results = paramAnalysis.param_analysis()
+    # results = paramAnalysis.param_analysis()
     results = paramAnalysis.get_result_from_file()
     paramAnalysis.compute_best_results()
 
