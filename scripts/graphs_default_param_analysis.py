@@ -58,6 +58,18 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
 
         return titles
 
+    def round_target(self, target_values):
+        if self.target_variable == "EUF_sys":
+            case = 4
+        elif self.target_variable == "psi_sys_1":
+            case = 3
+        elif self.target_variable == "m_dot[38]":
+            case = 4
+        else:
+            case = 4
+
+        return [round(tv, case) for tv in target_values]
+
     def generate(self, lang: str = "pt-BR"):
         titles = self.get_titles(lang)
         yticks = []
@@ -88,8 +100,9 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
             dv_df = pd.DataFrame(decision_variables, index=labels)
 
             width = 0.35
-            fig = plt.figure(figsize=(10, 10))
+            target_values = self.round_target(target_values)
 
+            fig = plt.figure(figsize=(10, 10))
             sub1 = fig.add_subplot(2, 2, (1, 2))
             rec1 = sub1.bar(labels, target_values, width=width)
             sub1.set_title(self.target_variable_display)
@@ -98,7 +111,8 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
             yticks = sub1.get_yticks()
             np.append(yticks, (yticks[-1] - yticks[-2]))
             sub1.set_yticks(yticks)
-            # sub1.set_ylim([0, math.ceil(max(target_values))])
+            sub1.set_title("a)", loc="left",
+                           style="italic", fontweight="normal")
 
             sub2 = fig.add_subplot(2, 2, 3)
             rec2 = sub2.bar(labels, generations, width=width)
@@ -108,6 +122,8 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
             yticks = sub2.get_yticks()
             np.append(yticks, (yticks[-1] - yticks[-2]))
             sub2.set_yticks(yticks)
+            sub2.set_title("b)", loc="left",
+                           style="italic", fontweight="normal")
 
             sub3 = fig.add_subplot(2, 2, 4)
             rec3 = sub3.bar(labels, times, width=width)
@@ -117,10 +133,17 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
             yticks = sub3.get_yticks()
             np.append(yticks, (yticks[-1] - yticks[-2]))
             sub3.set_yticks(yticks)
+            sub3.set_title("c)", loc="left",
+                           style="italic", fontweight="normal")
 
             fig.tight_layout()
 
-            filename = os.path.join(self.plots_folder, f"{lang}_analysis-of-{param}.jpg")
+            folder = os.path.join(self.plots_folder, lang)
+
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+
+            filename = os.path.join(folder, f"{param}.svg")
             plt.savefig(filename)
             fig.clf()
 
@@ -172,6 +195,8 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
 
             ticks = sub1.get_yticks(minor=True)
             sub1.set_ylim(sub1.get_ylim()[0], ticks[-1])
+            sub1.set_title("a)", loc="left",
+                           style="italic", fontweight="normal")
 
             sub2 = fig.add_subplot(2, 2, 3)
             rec2 = sub2.bar(labels, generations, width=width)
@@ -180,6 +205,8 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
             sub2.set_ylabel(titles["generations"])
             yticks = sub2.get_yticks()
             sub2.set_ylim(sub2.get_ylim()[0], yticks[-1])
+            sub2.set_title("b)", loc="left",
+                           style="italic", fontweight="normal")
 
             sub3 = fig.add_subplot(2, 2, 4)
             rec3 = sub3.bar(labels, times, width=width)
@@ -188,10 +215,16 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
             sub3.set_ylabel(titles["time-axis"])
             yticks = sub3.get_yticks()
             sub3.set_ylim(sub3.get_ylim()[0], yticks[-1])
+            sub3.set_title("c)", loc="left",
+                           style="italic", fontweight="normal")
 
             fig.tight_layout()
+            folder = os.path.join(self.plots_folder, lang, "logplot")
 
-            filename = os.path.join(self.plots_folder, f"{lang}_log_analysis-of-{param}.jpg")
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+
+            filename = os.path.join(folder, f"{param}.svg")
             plt.savefig(filename)
             fig.clf()
 
