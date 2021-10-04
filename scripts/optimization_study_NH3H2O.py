@@ -39,6 +39,7 @@ def param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
     paramAnalysis.set_optimizer(GAOptimizationStudy)
     results = paramAnalysis.param_analysis()
     results = paramAnalysis.get_result_from_file()
+    paramAnalysis.compute_best_results()
 
     # Geração dos Gráficos
     paramgraphs = DefaultParamAnalysisGraph(EES_model, runID, results)
@@ -178,7 +179,7 @@ def main():
             {'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}}},
         ],
         "selection_methods": [
-            {'selection': {'method': 'selTournament', 'params': {'tournsize': 5}}},
+            {'selection': {'method': 'selTournament', 'params': {'tournsize': 7}}},
             {'selection': {'method': 'selBest', 'params': {}}},
             {'selection': {'method': 'selRoulette', 'params': {}}},
             {'selection': {'method': 'selStochasticUniversalSampling', 'params': {}}},
@@ -192,17 +193,17 @@ def main():
     # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, base_config, runID="")
     # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, best_config, runID="")
 
-    target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $", "problem": "max"}
-    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-                   decision_variables, base_config, params, runID="new_analise_EUF_NH3H2O")
+    # target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $", "problem": "max"}
+    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+    #                decision_variables, base_config, params, runID="new_analise_EUF_NH3H2O")
 
     # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $", "problem": "max"}
     # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="new_analise_PSI_NH3H2O")
+    #                decision_variables, base_config, params, runID="new_analise_psi_NH3H2O")
 
-    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
-    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="new_analise_m38_NH3H2O")
+    target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
+    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+                   decision_variables, base_config, params, runID="new_analise_m38_NH3H2O")
 
 
 if __name__ == "__main__":
