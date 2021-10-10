@@ -10,10 +10,10 @@ from .utilities import check_model_path
 
 class SolveModel:
 
-    def __init__(self, EES_exe, EES_model, inputs, outputs):
+    def __init__(self, EES_exe, EES_model, inputs, outputs, runID=None):
         self.EES_exe = EES_exe
         self.EES_model = check_model_path(EES_model)
-        self.runID = round(time.time())
+        self.runID = runID if runID else str(round(time.time()))
         self.paths = self.set_paths(self.EES_model)
         self.inputs = inputs
         self.outputs = outputs
@@ -121,6 +121,10 @@ class SolveModel:
 
     def execute(self):
         """Executes the macro file on EES via subprocess module. Returns DataFrame with results."""
+
+        if "EES.exe" in str(subprocess.check_output('tasklist')):
+            self.log(">> Uma instância do EES foi encontrada aberta. Ela será fechada.")
+            os.system("taskkill /f /im  EES.exe")
 
         # Set input datfile and output filename.
         self.handle_inputs()

@@ -1,12 +1,14 @@
 import os
+import time
 import sys
+import csv
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 import numpy as np
 import pandas as pd
 from ees.solvemodel import SolveModel
-
+from ees.utilities import cleanup_csv
 EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-EES_model = r'C:\Root\Universidade\Mestrado\Analise\trigeracao_LiBrH2O2.EES'
+EES_model = r'C:\Root\Drive\Unicamp\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise\trigeracao_LiBrH2O.EES'
 
 inputs = {
     'm_dot[9]': 0.0226,
@@ -54,10 +56,69 @@ outputs = ['W_compressor', 'W_turbina', 'W_net', 'eta_brayton', 'Q_gerador', 'Q_
            'delta_condensador', 'delta_evaporador', 'delta_umidificador', 'delta_desumidificador', 'delta_aquecedor',
            'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh']
 
-eesmodel = SolveModel(EES_exe, EES_model, inputs, outputs)
+casos = {
+    "caso1": {
+        "T[10]": 35.00605725132968,
+        "T[19]": 35.009395493143664,
+        "T[13]": 84.65362090803661,
+        "T[22]": 5.9929432412217265,
+        "MR": 1.9869833698980435,
+        "T[34]": 68.11813029159323
+    },
+    "caso2": {
+        "T[10]": 35.012024779165586,
+        "T[19]": 35.10231867169098,
+        "T[13]": 85.01460541391867,
+        "T[22]": 5.980626043164863,
+        "MR": 4.1054918454862985,
+        "T[34]": 99.97410015687473
+    },
+    "caso3": {
+        "T[10]": 35.03834126958878,
+        "T[19]": 35.010537539127725,
+        "T[13]": 84.21670997033569,
+        "T[22]": 5.991448318502584,
+        "MR": 1.9840100708233024,
+        "T[34]": 68.04435271411491
+    }
+}
+# for caso, case_vars in casos.items():
+#     modified_input = {}
+#     modified_input.update(inputs)
+#     modified_input.update(case_vars)
+
+#     eesmodel = SolveModel(EES_exe, EES_model, modified_input, outputs, runID=caso)
+#     result = eesmodel.execute()
+#     df = pd.DataFrame.from_dict(result, orient='index')
+#     print(caso)
+#     print(df)
+#     print(" ")
+
+#     inputs_filename = os.path.join(eesmodel.paths["base_folder"], "displayed_inputs.xlsx")
+#     inputs_df = pd.DataFrame.from_dict(modified_input, orient='index')
+#     inputs_df.to_excel(inputs_filename)
+
+#     excel_filename = os.path.join(eesmodel.paths["base_folder"], "outputs.xlsx")
+#     df.to_excel(excel_filename)
+
+#     csv_filename = os.path.join(eesmodel.paths["base_folder"], "ARRAYS.csv")
+#     cleanup_csv(csv_filename)
+
+#     time.sleep(5)
+
+# CASO BASE
+
+eesmodel = SolveModel(EES_exe, EES_model, inputs, outputs, runID="CASO BASE")
 result = eesmodel.execute()
 df = pd.DataFrame.from_dict(result, orient='index')
 print(df)
 
+inputs_filename = os.path.join(eesmodel.paths["base_folder"], "displayed_inputs.xlsx")
+inputs_df = pd.DataFrame.from_dict(inputs, orient='index')
+inputs_df.to_excel(inputs_filename)
+
 excel_filename = os.path.join(eesmodel.paths["base_folder"], "outputs.xlsx")
 df.to_excel(excel_filename)
+
+csv_filename = os.path.join(eesmodel.paths["base_folder"], "ARRAYS.csv")
+cleanup_csv(csv_filename)

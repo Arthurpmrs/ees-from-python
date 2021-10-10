@@ -185,7 +185,6 @@ def main():
         ],
         "selection_methods": [
             {'selection': {'method': 'selTournament', 'params': {'tournsize': 7}}},
-            {'selection': {'method': 'selBest', 'params': {}}},
             {'selection': {'method': 'selRoulette', 'params': {}}},
             {'selection': {'method': 'selStochasticUniversalSampling', 'params': {}}},
         ]
@@ -200,15 +199,15 @@ def main():
 
     # target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $", "problem": "max"}
     # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="new_analise_EUF_LiBrH2O")
+    #                decision_variables, base_config, params, runID="new_analise_EUF_LiBrH2O-SEMBEST")
 
     # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $", "problem": "max"}
     # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="new_analise_psi_LiBrH2O")
+    #                decision_variables, base_config, params, runID="new_analise_psi_LiBrH2O-SEMBEST")
 
     target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
     param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-                   decision_variables, base_config, params, runID="new_analise_m38_LiBrH2O")
+                   decision_variables, base_config, params, runID="new_analise_m38_LiBrH2O-SEMBEST")
 
 
 if __name__ == "__main__":

@@ -83,7 +83,7 @@ class OptimizationStudy:
             os.system("taskkill /f /im  EES.exe")
 
         self.log(f">> Abrindo o EES em {self.EES_exe}")
-        subprocess.Popen([self.EES_exe, '/hide'], shell=True, close_fds=True).pid
+        subprocess.Popen([self.EES_exe, '/hide'], shell=True, close_fds=True)
         time.sleep(15)
         self.server = dde.CreateServer()
         self.server.Create("PyhtonDDExyUiosdjU")
