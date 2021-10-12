@@ -20,7 +20,7 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
         if lang in ["pt-BR", "pt_BR", "ptbr"]:
             titles = {
                 'cxTwoPoint': 'PontoDuplo',
-                'cxSimulatedBinaryBounded': 'SBS',
+                'cxSimulatedBinaryBounded': 'SBB',
                 'cxBlend': 'Mistura',
                 'mutGaussian': "Gaussiana",
                 'mutPolynomialBounded': 'PB',
@@ -38,7 +38,7 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
         elif lang in ["en-US", "en_US", "enus"]:
             titles = {
                 'cxTwoPoint': 'TwoPoint',
-                'cxSimulatedBinaryBounded': 'SBS',
+                'cxSimulatedBinaryBounded': 'SBB',
                 'cxBlend': 'Blend',
                 'mutGaussian': "Gaussian",
                 'mutPolynomialBounded': 'PB',
