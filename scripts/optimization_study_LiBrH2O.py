@@ -125,27 +125,39 @@ def main():
         'cvrg_tolerance': 1e-5,
         'verbose': True
     }
-    base_config2 = {
-        'seed': 5,
-        'population': 50,
-        'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-        'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
-        'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
-        'max_generation': 150,
-        'cvrg_tolerance': 1e-5,
-        'verbose': True
-    }
 
     best_config = {
         'seed': 5,
-        'population': 150,
-        'crossover': {'rate': 0.7, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
-        'mutation': {'rate': 0.2, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.05, 'low': low, 'up': up, 'eta': 3}},
+        'population': 200,
+        'crossover': {'rate': 0.6, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
+        'mutation': {'rate': 0.2, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.15, 'low': low, 'up': up, 'eta': 3}},
         'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
         'max_generation': 150,
-        'cvrg_tolerance': 1e-5,
+        'cvrg_tolerance': 1e-05,
         'verbose': True
     }
+
+    # best_config_psi = {
+    #     'seed': 5,
+    #     'population': 200,
+    #     'crossover': {'rate': 0.7, 'method': 'cxSimulatedBinaryBounded', 'params': {'eta': 3, 'low': low, 'up': up}},
+    #     'mutation': {'rate': 0.15, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.15, 'low': low, 'up': up, 'eta': 3}},
+    #     'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
+    #     'max_generation': 150,
+    #     'cvrg_tolerance': 1e-05,
+    #     'verbose': True
+    # }
+
+    # best_config_m38 = {
+    #     'seed': 5,
+    #     'population': 200,
+    #     'crossover': {'rate': 0.4, 'method': 'cxBlend', 'params': {'alpha': 0.4}},
+    #     'mutation': {'rate': 0.15, 'method': 'mutPolynomialBounded', 'params': {'indpb': 0.15, 'low': low, 'up': up, 'eta': 3}},
+    #     'selection': {'method': 'selTournament', 'params': {'tournsize': 7}},
+    #     'max_generation': 150,
+    #     'cvrg_tolerance': 1e-05,
+    #     'verbose': True
+    # }
 
     params = {
         "population": [
@@ -185,19 +197,22 @@ def main():
         ],
         "selection_methods": [
             {'selection': {'method': 'selTournament', 'params': {'tournsize': 7}}},
-            {'selection': {'method': 'selBest', 'params': {}}},
             {'selection': {'method': 'selRoulette', 'params': {}}},
             {'selection': {'method': 'selStochasticUniversalSampling', 'params': {}}},
         ]
     }
 
+    # Otimizações específicas
     # target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $", "problem": "max"}
+    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, best_config, runID="_aprimorada_EUF_LiBrH2O")
+
     # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $", "problem": "max"}
+    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, best_config, runID="_aprimorada_psi_LiBrH2O")
+
     # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
+    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, best_config, runID="_aprimorada_m38_LiBrH2O")
 
-    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, best_config, runID="TESTE-PSI-SELECTION")
-    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, best_config, runID="")
-
+    # Análise de sensibilidade
     # target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $", "problem": "max"}
     # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
     #                decision_variables, base_config, params, runID="new_analise_EUF_LiBrH2O")
@@ -206,9 +221,9 @@ def main():
     # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
     #                decision_variables, base_config, params, runID="new_analise_psi_LiBrH2O")
 
-    target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
-    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-                   decision_variables, base_config, params, runID="new_analise_m38_LiBrH2O")
+    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
+    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+    #                decision_variables, base_config, params, runID="new_analise_m38_LiBrH2O")
 
 
 if __name__ == "__main__":
