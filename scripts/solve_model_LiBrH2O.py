@@ -108,7 +108,33 @@ casos = {
 
 # CASO BASE
 
-eesmodel = SolveModel(EES_exe, EES_model, inputs, outputs, runID="CASO BASE")
+# eesmodel = SolveModel(EES_exe, EES_model, inputs, outputs, runID="CASO BASE")
+# result = eesmodel.execute()
+# df = pd.DataFrame.from_dict(result, orient='index')
+# print(df)
+
+# inputs_filename = os.path.join(eesmodel.paths["base_folder"], "displayed_inputs.xlsx")
+# inputs_df = pd.DataFrame.from_dict(inputs, orient='index')
+# inputs_df.to_excel(inputs_filename)
+
+# excel_filename = os.path.join(eesmodel.paths["base_folder"], "outputs.xlsx")
+# df.to_excel(excel_filename)
+
+# csv_filename = os.path.join(eesmodel.paths["base_folder"], "ARRAYS.csv")
+# cleanup_csv(csv_filename)
+
+# CASO LIMITE
+inputs.update(
+    {
+        "T[10]": 35,
+        "T[19]": 35,
+        "T[13]": 90,
+        "T[22]": 6,
+        "MR": 2.6,
+        "T[34]": 68
+    }
+)
+eesmodel = SolveModel(EES_exe, EES_model, inputs, outputs, runID="Caso Limite")
 result = eesmodel.execute()
 df = pd.DataFrame.from_dict(result, orient='index')
 print(df)
