@@ -170,7 +170,8 @@ class ParametricStudies:
         model_filename = os.path.basename(EES_model)
         base_folder = os.path.join(
             os.path.dirname(EES_model),
-            '.'.join(model_filename.split('.')[:-1])
+            '.'.join(model_filename.split('.')[:-1]),
+            '.parametric'
         )
         paths = {
             'model_path': EES_model,

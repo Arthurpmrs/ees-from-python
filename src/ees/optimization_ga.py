@@ -75,7 +75,11 @@ class GAOptimizationStudy(OptimizationStudy):
             self.check_is_ready()
             result = self.optimize(config)
             del creator.Individual
-            del creator.FitnessMax
+            # Necessário saber se é maximização ou minimização para deletar o objeto correto.
+            if self.optimization_problem == "min":
+                del creator.FitnessMin
+            elif self.optimization_problem == "max":
+                del creator.FitnessMax
         except Exception as e:
             self.logger.exception(e)
             self.log(">> Erro: Algo de errado ocorreu. Está run está comprometida.")
@@ -127,7 +131,7 @@ class GAOptimizationStudy(OptimizationStudy):
         gen_time_old = start_time
         rates = []
         gen_history = []
-        fits_old = 0
+        fits_old = self.invalid_target_value
         max_same_target_count = 5
         same_target_count = 0
 
@@ -196,12 +200,21 @@ class GAOptimizationStudy(OptimizationStudy):
                 pop_list.append({**target, **variables})
 
             df = pd.DataFrame(pop_list)
-            df = df.sort_values(by=self.target_variable, ascending=False).head(n_show)
+            # Ordenar o DataFrame da de acordo com o problema de otimização (max ou min).
+            if self.optimization_problem == "max":
+                rev = False
+            elif self.optimization_problem == "min":
+                rev = True
+            df = df.sort_values(by=self.target_variable, ascending=rev).head(n_show)
             self.log(f"Indivíduos:\n{df}")
 
-            # Error calculation
-            error = abs(fits_old - max(fits))
-            fits_old = max(fits)
+            # Error calculation (Depende se é maximização ou minimização.)
+            if self.optimization_problem == "min":
+                error = abs(fits_old - min(fits))
+                fits_old = min(fits)
+            elif self.optimization_problem == "max":
+                error = abs(fits_old - max(fits))
+                fits_old = max(fits)
 
             length = len(pop)
             mean = sum(fits) / length
@@ -283,8 +296,12 @@ class GAOptimizationStudy(OptimizationStudy):
         return target, variables
 
     def get_best_inds(self, pop, size):
+        if self.optimization_problem == "max":
+            rev = True
+        elif self.optimization_problem == "min":
+            rev = False
         tuple_list = [(ind, ind.fitness.values[0]) for ind in pop]
-        ordered_list = sorted(tuple_list, key=lambda x: x[1], reverse=True)
+        ordered_list = sorted(tuple_list, key=lambda x: x[1], reverse=rev)
         return [ind for ind, fitness in ordered_list[:size]]
 
     def display_results(self, results):

@@ -17,7 +17,7 @@ class Graphs:
         dfs = {}
         for base_path in self.base_paths:
             filepath = os.path.join(
-                base_path, ".results", self.variable, f"parametric_result.csv"
+                base_path, ".results", self.variable, "parametric_result.csv"
             )
 
             dfs.update({os.path.basename(base_path): pd.read_csv(filepath, sep=";")})
