@@ -36,8 +36,8 @@ def param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
                                      decision_variables, base_config, params, run_ID=runID)
     paramAnalysis.set_target_variable(**target_variable)
     paramAnalysis.set_optimizer(GAOptimizationStudy)
-    # results = paramAnalysis.param_analysis()
-    results = paramAnalysis.get_result_from_file()
+    results = paramAnalysis.param_analysis()
+    # results = paramAnalysis.get_result_from_file()
     paramAnalysis.compute_best_results()
 
     # Geração dos Gráficos
@@ -143,15 +143,15 @@ def main():
     # }
 
     params = {
-        "population": [
-            {'population': 10},
-            {'population': 15},
-            {'population': 25},
-            {'population': 50},
-            {'population': 100},
-            {'population': 150},
-            {'population': 200},
-        ],
+        # "population": [
+        #     {'population': 10},
+        #     {'population': 15},
+        #     {'population': 25},
+        #     {'population': 50},
+        #     {'population': 100},
+        #     {'population': 150},
+        #     {'population': 200},
+        # ],
         "crossover_rates": [
             {'crossover': {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}}},
             {'crossover': {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}}},
