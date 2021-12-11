@@ -143,15 +143,15 @@ def main():
     # }
 
     params = {
-        # "population": [
-        #     {'population': 10},
-        #     {'population': 15},
-        #     {'population': 25},
-        #     {'population': 50},
-        #     {'population': 100},
-        #     {'population': 150},
-        #     {'population': 200},
-        # ],
+        "population": [
+            {'population': 10},
+            {'population': 15},
+            {'population': 25},
+            {'population': 50},
+            {'population': 100},
+            {'population': 150},
+            {'population': 200},
+        ],
         "crossover_rates": [
             {'crossover': {'rate': 0.2, 'method': 'cxTwoPoint', 'params': {}}},
             {'crossover': {'rate': 0.3, 'method': 'cxTwoPoint', 'params': {}}},
@@ -180,7 +180,6 @@ def main():
         ],
         "selection_methods": [
             {'selection': {'method': 'selTournament', 'params': {'tournsize': 7}}},
-            {'selection': {'method': 'selRoulette', 'params': {}}},
             {'selection': {'method': 'selStochasticUniversalSampling', 'params': {}}},
         ]
     }
@@ -192,7 +191,7 @@ def main():
     # Análise de sensibilidade
     target_variable = {"target_variable": "payback_simples_2", "target_variable_display": r"$ T_{PB} $", "problem": "min"}
     param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-                   decision_variables, base_config, params, runID="analise_TPB_librh2o")
+                   decision_variables, base_config, params, runID="analise_TPB_librh2o_correcao")
 
 
 if __name__ == "__main__":
