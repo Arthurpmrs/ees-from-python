@@ -1,4 +1,5 @@
 import os
+from subprocess import run
 import sys
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 import json
@@ -50,7 +51,7 @@ def param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
 
 def main():
     EES_exe = r'C:\Root\Universidade\EES\EES.exe'
-    EES_model = r'C:\Root\Drive\Unicamp\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise Economica\Cálculos\trigeracao_LiBrH2O_economic_py.EES'
+    EES_model = r'C:\Root\Drive\Unicamp\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise Economica\Cálculos\trigeracao_NH3H2O_economic_py.EES'
 
     inputs = {
         'm_dot[9]': 0.0226,
@@ -63,7 +64,7 @@ def main():
         'rp': 3.22,
         'X_biogas_ch4': 0.6,
         'DeltaTmin': 10,
-        'x[18]': 0,
+        'x[18]': 0.9996,
         'Q_evaporador': 12,
         'epsilon_hx': 0.80,
         'eta_bomba': 0.95,
@@ -85,29 +86,36 @@ def main():
         'MR': 2.5,
         'T_0': 25,
         'P_0': 101.325,
+        'epsilon_rhx': 0.8,
+        'Q[22]': 0.975,
         'dolar': 5.50,
         'tarifa_energia_eletrica': 0.62,
         'custo_agua': 13,
         'ir': 0.15
     }
-    outputs = ['W_compressor', 'W_turbina', 'W_net', 'eta_brayton', 'Q_gerador', 'Q_absorvedor', 'Q_condensador', 'Q_evaporador',
-               'UA_gerador', 'UA_absorvedor', 'UA_condensador', 'UA_evaporador', 'COP_1', 'COP_2', 'v_dot[38]', 'v_dot[32]',
-               'm_dot[38]', 'm_dot[32]', 'Q_aquecedor', 'UA_aquecedor', 'RR', 'GOR', 'EUF_sys', 'Exd_compressor', 'psi_compressor',
-               'Exd_regenerador', 'psi_regenerador', 'Exd_cc', 'psi_cc', 'Exd_turbina', 'psi_turbina', 'Exd_brayton', 'psi_brayton',
-               'Exd_absorvedor', 'psi_absorvedor', 'Exd_gerador', 'psi_gerador', 'Exd_condensador', 'psi_condensador', 'Exd_evaporador',
-               'psi_evaporador', 'Exd_vs', 'psi_vs', 'Exd_vr', 'psi_vr', 'Exd_hx', 'psi_hx', 'Exd_bomba', 'psi_bomba', 'psi_sra',
-               'Exd_sra', 'Exd_umidificador', 'psi_umidificador', 'Exd_desumidificador', 'psi_desumidificador', 'Exd_aquecedor',
-               'psi_aquecedor', 'Exd_hdh', 'psi_hdh', 'psi_sys_1', 'psi_sys_2', 'Exd_sys', 'delta_compressor', 'delta_regenerador',
-               'delta_cc', 'delta_turbina', 'delta_absorvedor', 'delta_bomba', 'delta_vs', 'delta_vr', 'delta_hx', 'delta_gerador',
-               'delta_condensador', 'delta_evaporador', 'delta_umidificador', 'delta_desumidificador', 'delta_aquecedor',
-               'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh', 'payback_simples_1',
-               'payback_simples_2', 'payback_simples_3', 'cost_CAPEX_2019_real_trigen', 'cost_OPEX_real_anual', 'cost_prod',
-               'cost_CAPEX_2019_real_total', 'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS', 'cost_op_DA']
+    # outputs = ['W_compressor', 'W_turbina', 'W_net', 'eta_brayton', 'Q_gerador', 'Q_absorvedor', 'Q_condensador', 'Q_evaporador',
+    #            'UA_gerador', 'UA_absorvedor', 'UA_condensador', 'UA_evaporador', 'COP_1', 'COP_2', 'v_dot[38]', 'v_dot[32]',
+    #            'm_dot[38]', 'm_dot[32]', 'Q_aquecedor', 'UA_aquecedor', 'RR', 'GOR', 'EUF_sys', 'Exd_compressor', 'psi_compressor',
+    #            'Exd_regenerador', 'psi_regenerador', 'Exd_cc', 'psi_cc', 'Exd_turbina', 'psi_turbina', 'Exd_brayton', 'psi_brayton',
+    #            'Exd_absorvedor', 'psi_absorvedor', 'Exd_gerador', 'psi_gerador', 'Exd_condensador', 'psi_condensador', 'Exd_evaporador',
+    #            'psi_evaporador', 'Exd_vs', 'psi_vs', 'Exd_vr', 'psi_vr', 'Exd_hx', 'psi_hx', 'Exd_bomba', 'psi_bomba', 'psi_sra',
+    #            'Exd_sra', 'Exd_umidificador', 'psi_umidificador', 'Exd_desumidificador', 'psi_desumidificador', 'Exd_aquecedor',
+    #            'psi_aquecedor', 'Exd_hdh', 'psi_hdh', 'psi_sys_1', 'psi_sys_2', 'Exd_sys', 'delta_compressor', 'delta_regenerador',
+    #            'delta_cc', 'delta_turbina', 'delta_absorvedor', 'delta_bomba', 'delta_vs', 'delta_vr', 'delta_hx', 'delta_gerador',
+    #            'delta_condensador', 'delta_evaporador', 'delta_umidificador', 'delta_desumidificador', 'delta_aquecedor',
+    #            'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh', 'Exd_retificador',
+    #            'Exd_rhx', 'epsilon_rhx', 'cost_CAPEX_2019_real_trigen',
+    #            'cost_OPEX_real_anual', 'cost_prod', 'cost_CAPEX_2019_real_total', 'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS',
+    #            'cost_op_DA', 'payback_simples_1', 'payback_simples_2', 'payback_simples_3']
+
+    # OBS: Não ia com muitos outputs. Igual ao problema que tinha que dividir no programa da otimização. O problema é o máximo de caracteres no comando macro.
+    outputs = ['cost_CAPEX_2019_real_trigen', 'cost_OPEX_real_anual', 'cost_prod', 'cost_CAPEX_2019_real_total', 'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS',
+               'cost_op_DA', 'tpb1', 'tpb2', 'tpb3']
 
     decision_variables = {
-        'T[10]': (35, 44),
-        'T[19]': (35, 48),
-        'T[13]': (75, 90),
+        'T[10]': (35, 42.5),
+        'T[19]': (35, 45.5),
+        'T[13]': (76.5, 90),
         'T[22]': (1, 6),
         'MR': (0.5, 4.5),
         'T[34]': (68, 100)
@@ -127,20 +135,21 @@ def main():
         'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
         'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
         'selection': {'method': 'selTournament', 'params': {'tournsize': 5}},
-        'max_generation': 35,
-        'cvrg_tolerance': 1e-5,
-        'verbose': True
-    }
-    best_config_1 = {
-        'seed': 5,
-        'population': 50,
-        'crossover': {'rate': 0.5, 'method': 'cxTwoPoint', 'params': {}},
-        'mutation': {'rate': 0.10, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': int_low, 'up': int_up}},
-        'selection': {'method': 'selTournament', 'params': {'tournsize': 5}},
         'max_generation': 150,
         'cvrg_tolerance': 1e-5,
         'verbose': True
     }
+
+    # best_config = {
+    #     'seed': 5,
+    #     'population': 200,
+    #     'crossover': {'rate': 0.5, 'method': 'cxSimulatedBinaryBounded', 'params': {'eta': 3, 'low': [35, 35, 76.5, 1, 0.5, 68, 15], 'up': [42.5, 45.5, 90, 6, 4.5, 100, 40]}},
+    #     'mutation': {'rate': 0.2, 'method': 'mutUniformInt', 'params': {'indpb': 0.05, 'low': [35, 35, 76, 1, 0, 68, 15], 'up': [42, 45, 90, 6, 4, 100, 40]}},
+    #     'selection': {'method': 'selStochasticUniversalSampling', 'params': {}},
+    #     'max_generation': 150,
+    #     'cvrg_tolerance': 1e-5,
+    #     'verbose': True
+    # }
 
     params = {
         "population": [
@@ -185,13 +194,13 @@ def main():
     }
 
     # Otimizações específicas
-    target_variable = {"target_variable": "payback_simples_2", "target_variable_display": r"$ T_{PB} $", "problem": "min"}
-    optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, base_config, runID="TPB_librh2o")
+    # target_variable = {"target_variable": "tpb2", "target_variable_display": r"$ T_{PB} $", "problem": "min"}
+    # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, base_config, runID="TPB_nh3h2o")
 
     # Análise de sensibilidade
-    # target_variable = {"target_variable": "payback_simples_2", "target_variable_display": r"$ T_{PB} $", "problem": "min"}
-    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="analise_TPB_librh2o_correcao")
+    target_variable = {"target_variable": "tpb2", "target_variable_display": r"$ T_{PB} $", "problem": "min"}
+    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+                   decision_variables, base_config, params, runID="analise_TPB_nh3h2o")
 
 
 if __name__ == "__main__":

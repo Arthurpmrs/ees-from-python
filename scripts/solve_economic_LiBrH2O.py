@@ -46,7 +46,7 @@ inputs = {
     'dolar': 5.50,
     'tarifa_energia_eletrica': 0.62,
     'custo_agua': 13,
-    'ir': 0.15
+    'ir': 0.1
 }
 outputs = ['W_compressor', 'W_turbina', 'W_net', 'eta_brayton', 'Q_gerador', 'Q_absorvedor', 'Q_condensador', 'Q_evaporador',
            'UA_gerador', 'UA_absorvedor', 'UA_condensador', 'UA_evaporador', 'COP_1', 'COP_2', 'v_dot[38]', 'v_dot[32]',
@@ -63,7 +63,7 @@ outputs = ['W_compressor', 'W_turbina', 'W_net', 'eta_brayton', 'Q_gerador', 'Q_
            'cost_CAPEX_2019_real_total', 'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS', 'cost_op_DA']
 
 casos = {
-    "caso1": {
+    "corr_caso1": {
         "T[10]": 35.00605725132968,
         "T[19]": 35.009395493143664,
         "T[13]": 84.65362090803661,
@@ -71,7 +71,7 @@ casos = {
         "MR": 1.9869833698980435,
         "T[34]": 68.11813029159323
     },
-    "caso2": {
+    "corr_caso2": {
         "T[10]": 35.012024779165586,
         "T[19]": 35.10231867169098,
         "T[13]": 85.01460541391867,
@@ -79,7 +79,7 @@ casos = {
         "MR": 4.1054918454862985,
         "T[34]": 99.97410015687473
     },
-    "caso3": {
+    "corr_caso3": {
         "T[10]": 35.03834126958878,
         "T[19]": 35.010537539127725,
         "T[13]": 84.21670997033569,
