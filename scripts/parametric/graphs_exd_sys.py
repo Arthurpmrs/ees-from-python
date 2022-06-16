@@ -18,8 +18,8 @@ class GraphsSysExd(Graphs):
         if lang in ["pt-BR", "pt_BR", "ptbr"]:
             titles = {
                 "exds": {
-                    "trigeracao_LiBrH2O": r"$ \dot{Ex}_{d} $ - Trigeração (SRA: $ LiBr-H_2O)$",
-                    "trigeracao_NH3H2O": r"$ \dot{Ex}_{d} $ - Trigeração (SRA: $ NH_3-H_2O)$",
+                    "trigeracao_LiBrH2O": r"$ \dot{Ex}_{d,i} $ - Trigeração (SRA: $ LiBr/H_2O)$",
+                    "trigeracao_NH3H2O": r"$ \dot{Ex}_{d,i} $ - Trigeração (SRA: $ NH_3/H_2O)$",
                 },
                 "labels": {
                     "comp": "Compressor",
@@ -44,8 +44,8 @@ class GraphsSysExd(Graphs):
         elif lang in ["en-US", "en_US", "enus"]:
             titles = {
                 "exds": {
-                    "trigeracao_LiBrH2O": r"$ \dot{Ex}_{d} $ - Trigeneration (ARS: $ LiBr-H_2O)$",
-                    "trigeracao_NH3H2O": r"$ \dot{Ex}_{d} $ - Trigeneration (ARS: $ NH_3-H_2O)$",
+                    "trigeracao_LiBrH2O": r"$ \dot{Ex}_{d,i} $ - Trigeneration (ARS: $ LiBr/H_2O)$",
+                    "trigeracao_NH3H2O": r"$ \dot{Ex}_{d,i} $ - Trigeneration (ARS: $ NH_3/H_2O)$",
                 },
                 "labels": {
                     "comp": "Compressor",
@@ -84,6 +84,9 @@ class GraphsSysExd(Graphs):
         matplotlib.rc("axes", **axes)
         legends = {"fontsize": 12}
         matplotlib.rc("legend", **legends)
+        matplotlib.rcParams["axes.prop_cycle"] = matplotlib.cycler(
+            color=["004c6d", "005b82", "006a98", "007aaf", "008ac6"]
+        )
 
         graph_letters = ["a)", "b)"]
         fig, axs = plt.subplots(1, 2, figsize=(18.4, 7), num="DecompostionExd")
@@ -99,7 +102,7 @@ class GraphsSysExd(Graphs):
                 fontweight="normal",
             )
             ax.set_xlabel(var_display_str)
-            ax.set_ylabel(r"$\dot{Ex}_{d,i}$")
+            ax.set_ylabel(r"$\dot{Ex}_{d,k}$")
             ax.plot(
                 df[self.variable],
                 df["Exd_compressor"],
@@ -210,7 +213,7 @@ class GraphsSysExd(Graphs):
         fig.tight_layout()
         fig.savefig(
             os.path.join(
-                self.plots_folder, f"plot_{lang}_Decomp-EXD-sys_{self.variable}.svg"
+                self.plots_folder, f"plot_{lang}_Decomp-EXD-sys_{self.variable}.pdf"
             )
         )
         fig.clf()

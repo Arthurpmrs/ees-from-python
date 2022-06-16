@@ -13,7 +13,7 @@ class SolveModel:
     def __init__(self, EES_exe, EES_model, inputs, outputs, runID=None):
         self.EES_exe = EES_exe
         self.EES_model = check_model_path(EES_model)
-        self.runID = runID if runID else str(round(time.time()))
+        self.runID = str(runID) if runID else str(round(time.time()))
         self.paths = self.set_paths(self.EES_model)
         self.inputs = inputs
         self.outputs = outputs
@@ -29,7 +29,7 @@ class SolveModel:
             os.path.dirname(EES_model),
             '.'.join(model_filename.split('.')[:-1]),
             '.solver',
-            str(self.runID)
+            self.runID
         )
         paths = {
             'model_path': EES_model,

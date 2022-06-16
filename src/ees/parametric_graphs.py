@@ -25,7 +25,8 @@ class Graphs:
 
     def set_plots_folder(self):
         models_folder = os.path.dirname(self.base_paths[0])
-        plots_folder = os.path.join(models_folder, "both", ".plots", self.variable)
+        # plots_folder = os.path.join(models_folder, "both", ".plots", self.variable)
+        plots_folder = os.path.join(models_folder, "both", ".plots", "new_color", self.variable)
 
         if not os.path.exists(plots_folder):
             os.makedirs(plots_folder)
@@ -60,7 +61,8 @@ class Graphs:
         matplotlib.rc("savefig", **savefig)
 
         matplotlib.rcParams["axes.prop_cycle"] = matplotlib.cycler(
-            color=["r", "b", "g", "m", "k"]
+            color=["004c6d", "7aaac6"],
+            linestyle=["-", "--"]
         )
         matplotlib.rcParams["ytick.labelsize"] = 15
         matplotlib.rcParams["xtick.labelsize"] = 15

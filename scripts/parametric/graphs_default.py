@@ -3,6 +3,7 @@ import sys
 sys.path.append(os.path.join(os.getcwd(), 'src'))
 from ees.parametric_graphs import Graphs
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 
@@ -15,22 +16,22 @@ class GraphsDefault(Graphs):
     def get_titles(self, lang):
         if lang in ["pt-BR", "pt_BR", "ptbr"]:
             titles = {
-                "m_dot[38]": r"Vazão mássica de água pura ($ \dot{m}_{38} $)",
+                "m_dot[38]": r"Vazão mássica de água dessalinizada ($ \dot{m}_{38} $)",
                 "GOR": "Gained Output Ratio (GOR)",
-                "eta_brayton": r"Eficiência Energética do ciclo de Brayton ($ \eta_{Brayton} $)",
+                "eta_brayton": r"Eficiência Energética do ciclo de Brayton ($ \eta_{brayton} $)",
                 "W_net": r"Trabalho Líquido da Turbina ($ \dot{W}_{net} $)",
                 "psi_sys_1": r"Eficiência Exergética do Sistema de Trigeração ($ \psi_{sys} $)",
                 "Exd_sys": r"Exergia Destruída do Sistema de Trigeração ($ \dot{Ex}_{d, sys} $)",
-                "EUF_sys": "Fator de Utilização de Energia (EUF)",
+                "EUF_sys": r"Fator de Utilização de Energia ($EUF$)",
                 "COP_1": "Coeficiente de Desempenho (COP)",
                 "models": {
-                    "trigeracao_LiBrH2O": r"Trigeração (SRA: $LiBr-H_2O$)",
-                    "trigeracao_NH3H2O": r"Trigeração (SRA: $NH_3-H_2O$)",
+                    "trigeracao_LiBrH2O": r"Trigeração (SRA: $LiBr/H_2O$)",
+                    "trigeracao_NH3H2O": r"Trigeração (SRA: $NH_3/H_2O$)",
                 },
             }
         elif lang in ["en-US", "en_US", "enus"]:
             titles = {
-                "m_dot[38]": r"Freshwater mass flow rate $ (\dot{m}_{38}) $",
+                "m_dot[38]": r"Freshwater mass flow rate ($ \dot{m}_{38} $)",
                 "GOR": "Gained Output Ratio (GOR)",
                 "eta_brayton": r"Brayton's cycle Energetic Efficiency ($ \eta_{Brayton} $)",
                 "W_net": r"Net Turbine Work ($ \dot{W}_{net} $)",
@@ -39,8 +40,8 @@ class GraphsDefault(Graphs):
                 "EUF_sys": "Energy Utilization Factor (EUF)",
                 "COP_1": "Coefficient of Performance (COP)",
                 "models": {
-                    "trigeracao_LiBrH2O": r"Trigeneration (ARS: $LiBr-H_2O$)",
-                    "trigeracao_NH3H2O": r"Trigeneration (ARS: $NH_3-H_2O$)",
+                    "trigeracao_LiBrH2O": r"Trigeneration (ARS: $LiBr/H_2O$)",
+                    "trigeracao_NH3H2O": r"Trigeneration (ARS: $NH_3/H_2O$)",
                 },
             }
         else:
@@ -51,13 +52,12 @@ class GraphsDefault(Graphs):
     def generate(self, var_display_str, lang="pt-BR"):
 
         titles = self.get_titles(lang)
-
         # Dessalinização
         fig1, (ax1, ax2) = plt.subplots(
             1, 2, figsize=(18.4, 7), num="Dessalinização")
         ax1.set_title(titles["m_dot[38]"])
         ax1.set_xlabel(var_display_str)
-        ax1.set_ylabel(r"$\dot{m}_{38}$ (kg/s)")
+        ax1.set_ylabel(r"$\dot{m}_{38} \: (kg \: s^{-1})$")
         ax2.set_title(titles["GOR"])
         ax2.set_xlabel(var_display_str)
         ax2.set_ylabel("GOR")
@@ -87,7 +87,7 @@ class GraphsDefault(Graphs):
         fig1.tight_layout()
         fig1.savefig(
             os.path.join(self.plots_folder,
-                         f"plot_{lang}_GOR_m_dot[38]_vs_{self.variable}.svg")
+                         f"plot_{lang}_GOR_m_dot[38]_vs_{self.variable}.pdf")
         )
         # Turbina a gás
         fig3, (ax3, ax4) = plt.subplots(
@@ -131,7 +131,7 @@ class GraphsDefault(Graphs):
         fig3.savefig(
             os.path.join(
                 self.plots_folder,
-                f"plot_{lang}_eta_brayton_W_net_vs_{self.variable}.svg",
+                f"plot_{lang}_eta_brayton_W_net_vs_{self.variable}.pdf",
             ),
         )
 
@@ -172,7 +172,7 @@ class GraphsDefault(Graphs):
         fig5.tight_layout()
         fig5.savefig(
             os.path.join(
-                self.plots_folder, f"plot_{lang}_exergy_vs_{self.variable}.svg"
+                self.plots_folder, f"plot_{lang}_exergy_vs_{self.variable}.pdf"
             ),
         )
 
@@ -180,7 +180,7 @@ class GraphsDefault(Graphs):
         fig7, ax7 = plt.subplots(num="Eficiência Energética", figsize=(9.2, 7))
         ax7.set_title(titles["EUF_sys"])
         ax7.set_xlabel(var_display_str)
-        ax7.set_ylabel(r"$ EUF_{sys} $")
+        ax7.set_ylabel(r"$ EUF $")
         for model, df in self.dfs.items():
             ax7.plot(df[self.variable], df["EUF_sys"],
                      label=titles["models"][model])
@@ -192,7 +192,7 @@ class GraphsDefault(Graphs):
         fig7.tight_layout()
         fig7.savefig(
             os.path.join(self.plots_folder,
-                         f"plot_{lang}_EUF_vs_{self.variable}.svg"),
+                         f"plot_{lang}_EUF_vs_{self.variable}.pdf"),
         )
 
         # COP
@@ -212,7 +212,7 @@ class GraphsDefault(Graphs):
         fig8.tight_layout()
         fig8.savefig(
             os.path.join(self.plots_folder,
-                         f"plot_{lang}_COP_vs_{self.variable}.svg"),
+                         f"plot_{lang}_COP_vs_{self.variable}.pdf"),
         )
 
         figs = [fig1, fig3, fig5, fig7, fig8]

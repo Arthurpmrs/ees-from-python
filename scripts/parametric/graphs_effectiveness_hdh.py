@@ -23,7 +23,7 @@ class GraphsEffectivenessHDH:
             results = {}
             for dirname in os.listdir(results_path):
                 if os.path.isdir(os.path.join(results_path, dirname)):
-                    filepath = os.path.join(results_path, dirname, f"parametric_result.csv")
+                    filepath = os.path.join(results_path, dirname, "parametric_result.csv")
                     epsilon_u = dirname.split(" ")[-1]
                     if self.lang in ["pt-BR", "pt_BR", "ptbr"]:
                         epsilon_u = epsilon_u.replace(".", ",")
@@ -43,7 +43,7 @@ class GraphsEffectivenessHDH:
 
     def set_plots_folder(self):
         models_folder = os.path.dirname(self.base_paths[0])
-        plots_folder = os.path.join(models_folder, "both", ".plots", "epsilon_d")
+        plots_folder = os.path.join(models_folder, "both", ".plots", "new_color", "epsilon_d")
 
         if not os.path.exists(plots_folder):
             os.makedirs(plots_folder)
@@ -78,7 +78,7 @@ class GraphsEffectivenessHDH:
         matplotlib.rc("savefig", **savefig)
 
         matplotlib.rcParams["axes.prop_cycle"] = matplotlib.cycler(
-            color=["r", "b", "g", "m", "k"]
+            color=["004c6d", "005b82", "006a98", "007aaf", "008ac6"]
         )
         matplotlib.rcParams["ytick.labelsize"] = 15
         matplotlib.rcParams["xtick.labelsize"] = 15
@@ -94,15 +94,15 @@ class GraphsEffectivenessHDH:
                 "Exd_sys": r"Exergia Destruída do Sistema de Trigeração ($ \dot{Ex}_{d, sys} $)",
                 "EUF_sys": "Fator de Utilização de Energia (EUF)",
                 "COP_1": "Coeficiente de Desempenho (COP)",
-                "labelvar": r"$ \varepsilon_{U} = $",
+                "labelvar": r"$ \varepsilon_{u} = $",
                 "models": {
-                    "trigeracao_LiBrH2O": r"Tri($LiBr-H_2O$)",
-                    "trigeracao_NH3H2O": r"Tri($NH_3-H_2O$)",
+                    "trigeracao_LiBrH2O": r"Tri($LiBr/H_2O$)",
+                    "trigeracao_NH3H2O": r"Tri($NH_3/H_2O$)",
                 },
             }
         elif self.lang in ["en-US", "en_US", "enus"]:
             titles = {
-                "m_dot[38]": r"Freshwater mass flow rate $ (\dot{m}_{38}) $",
+                "m_dot[38]": r"Freshwater mass flow rate ($ \dot{m}_{38} $)",
                 "GOR": "Gained Output Ratio (GOR)",
                 "eta_brayton": r"Brayton's cycle Energetic Efficiency ($ \eta_{Brayton} $)",
                 "W_net": r"Net Turbine Work ($ \dot{W}_{net} $)",
@@ -110,10 +110,10 @@ class GraphsEffectivenessHDH:
                 "Exd_sys": r"Trigenerations's Exergy Destruction ($ \dot{Ex}_{d, sys} $)",
                 "EUF_sys": "Energy Utilization Factor (EUF)",
                 "COP_1": "Coefficient of Performance (COP)",
-                "labelvar": r"$ \varepsilon_{H} = $",
+                "labelvar": r"$ \varepsilon_{h} = $",
                 "models": {
-                    "trigeracao_LiBrH2O": r"Tri($LiBr-H_2O$)",
-                    "trigeracao_NH3H2O": r"Tri($NH_3-H_2O$)",
+                    "trigeracao_LiBrH2O": r"Tri($LiBr/H_2O$)",
+                    "trigeracao_NH3H2O": r"Tri($NH_3/H_2O$)",
                 },
             }
         else:
@@ -123,13 +123,13 @@ class GraphsEffectivenessHDH:
 
     def generate(self):
         titles = self.get_titles()
-        var_display_str = r"$ \varepsilon_{D} $"
+        var_display_str = r"$ \varepsilon_{d} $"
         lines = ["-", "--"]
 
         fig1, (ax1, ax2) = plt.subplots(1, 2, figsize=(18.4, 7), num="Dessalinização")
         ax1.set_title(titles["m_dot[38]"])
         ax1.set_xlabel(var_display_str)
-        ax1.set_ylabel(r"$\dot{m}_{38}$ (kg/s)")
+        ax1.set_ylabel(r"$\dot{m}_{38} \: (kg \: s^{-1}$")
         ax2.set_title(titles["GOR"])
         ax2.set_xlabel(var_display_str)
         ax2.set_ylabel("GOR")
@@ -153,7 +153,7 @@ class GraphsEffectivenessHDH:
         ax2.legend()
         fig1.tight_layout()
         fig1.savefig(
-            os.path.join(self.plots_folder, f"plot_{self.lang}_GOR_m_dot[38]_vs_epsilon_d.svg"),
+            os.path.join(self.plots_folder, f"plot_{self.lang}_GOR_m_dot[38]_vs_epsilon_d.pdf"),
         )
 
         fig3, (ax3, ax4) = plt.subplots(1, 2, figsize=(18.4, 7), num="Turbina a gás")
@@ -183,7 +183,7 @@ class GraphsEffectivenessHDH:
         ax4.legend()
         fig3.tight_layout()
         fig3.savefig(
-            os.path.join(self.plots_folder, f"plot_{self.lang}_eta_brayton_W_net_vs_epsilon_d.svg"),
+            os.path.join(self.plots_folder, f"plot_{self.lang}_eta_brayton_W_net_vs_epsilon_d.pdf"),
         )
 
         fig5, (ax5, ax6) = plt.subplots(1, 2, figsize=(18.4, 7), num="Exergia")
@@ -212,13 +212,13 @@ class GraphsEffectivenessHDH:
         ax6.legend()
         fig5.tight_layout()
         fig5.savefig(
-            os.path.join(self.plots_folder, f"plot_{self.lang}_exergy_vs_epsilon_d.svg"),
+            os.path.join(self.plots_folder, f"plot_{self.lang}_exergy_vs_epsilon_d.pdf"),
         )
 
         fig7, ax7 = plt.subplots(num="Eficiência Energética", figsize=(9.2, 7))
         ax7.set_title(titles["EUF_sys"])
         ax7.set_xlabel(var_display_str)
-        ax7.set_ylabel(r"$ EUF_{sys} $")
+        ax7.set_ylabel(r"$ EUF $")
         for (model, results), line in zip(self.dfs.items(), lines):
             for epsilon_h, df in results.items():
                 ax7.plot(
@@ -230,7 +230,7 @@ class GraphsEffectivenessHDH:
         ax7.legend()
         fig7.tight_layout()
         fig7.savefig(
-            os.path.join(self.plots_folder, f"plot_{self.lang}_EUF_vs_epsilon_d.svg"),
+            os.path.join(self.plots_folder, f"plot_{self.lang}_EUF_vs_epsilon_d.pdf"),
         )
 
         fig8, ax8 = plt.subplots(num="COP", figsize=(9.2, 7))
@@ -248,7 +248,7 @@ class GraphsEffectivenessHDH:
         ax8.legend()
         fig8.tight_layout()
         fig8.savefig(
-            os.path.join(self.plots_folder, f"plot_{self.lang}_COP_vs_epsilon_d.svg"),
+            os.path.join(self.plots_folder, f"plot_{self.lang}_COP_vs_epsilon_d.pdf"),
         )
 
         figs = [fig1, fig3, fig5, fig7, fig8]

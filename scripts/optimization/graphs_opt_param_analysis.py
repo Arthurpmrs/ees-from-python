@@ -143,7 +143,7 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-            filename = os.path.join(folder, f"{param}.svg")
+            filename = os.path.join(folder, f"{param}.pdf")
             plt.savefig(filename)
             fig.clf()
 
@@ -224,7 +224,7 @@ class DefaultParamAnalysisGraph(OptParamGraphs):
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-            filename = os.path.join(folder, f"{param}.svg")
+            filename = os.path.join(folder, f"{param}.pdf")
             plt.savefig(filename)
             fig.clf()
 

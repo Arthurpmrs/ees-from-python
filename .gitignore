@@ -1,3 +1,5 @@
+.old
+.prototyping
 models
 *.egg-info
 __pycache__
