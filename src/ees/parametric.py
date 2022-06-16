@@ -9,13 +9,13 @@ from .utilities import check_model_path
 class ParametricStudy:
 
     def __init__(self, paths, base_case_inputs, variable, parametric_inputs, outputs, run_id=None):
+        self.run_id = run_id
         self.variable = variable
         self.paths = self.set_paths(paths)
         self.base_case_inputs = base_case_inputs
         self.parametric_inputs = parametric_inputs
         self.datfiles = {'inputs': [], 'outputs': []}
         self.outputs = outputs
-        self.run_id = run_id
 
     def set_paths(self, paths):
         """Set paths that will be used as a dictionary and creats them if not already."""
@@ -222,7 +222,7 @@ class ParametricStudies:
         self.macro_string = macro_header + self.macro_string
         self.macro_string += 'Quit'
 
-        macro_filepath = os.path.join(self.paths['base_folder'], 'macro.emf')
+        macro_filepath = os.path.join(self.paths['base_folder'], self.run_id, 'macro.emf')
         with open(macro_filepath, 'w') as emffile:
             emffile.write(self.macro_string)
 
