@@ -1,4 +1,5 @@
 import os
+import time
 import pandas as pd
 import subprocess
 from icecream import ic
@@ -7,13 +8,14 @@ from .utilities import check_model_path
 
 class ParametricStudy:
 
-    def __init__(self, paths, base_case_inputs, variable, parametric_inputs, outputs):
+    def __init__(self, paths, base_case_inputs, variable, parametric_inputs, outputs, run_id=None):
         self.variable = variable
         self.paths = self.set_paths(paths)
         self.base_case_inputs = base_case_inputs
         self.parametric_inputs = parametric_inputs
         self.datfiles = {'inputs': [], 'outputs': []}
         self.outputs = outputs
+        self.run_id = run_id if run_id else str(round(time.time()))
 
     def set_paths(self, paths):
         """Set paths that will be used as a dictionary and creats them if not already."""
@@ -21,9 +23,9 @@ class ParametricStudy:
         new_paths = {}
 
         # Add to super Paths variable.
-        results_folder = os.path.join(paths['base_folder'], '.results', self.variable)
-        datfiles_folder = os.path.join(paths['base_folder'], '.datfiles', self.variable)
-        plots_folder = os.path.join(paths['base_folder'], '.plots', self.variable)
+        results_folder = os.path.join(paths['base_folder'], self.run_id, '.results', self.variable)
+        datfiles_folder = os.path.join(paths['base_folder'], self.run_id, '.datfiles', self.variable)
+        plots_folder = os.path.join(paths['base_folder'], self.run_id, '.plots', self.variable)
 
         for name, path in paths.items():
             new_paths.update({name: path})
@@ -169,9 +171,9 @@ class ParametricStudies:
         model_folder = os.path.dirname(EES_model)
         model_filename = os.path.basename(EES_model)
         base_folder = os.path.join(
-            os.path.dirname(EES_model),
+            model_folder,
             '.'.join(model_filename.split('.')[:-1]),
-            '.parametric'
+            '.ParamAnalysis'
         )
         paths = {
             'model_path': EES_model,
