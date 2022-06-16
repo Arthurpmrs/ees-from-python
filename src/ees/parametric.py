@@ -15,7 +15,7 @@ class ParametricStudy:
         self.parametric_inputs = parametric_inputs
         self.datfiles = {'inputs': [], 'outputs': []}
         self.outputs = outputs
-        self.run_id = run_id if run_id else str(round(time.time()))
+        self.run_id = run_id
 
     def set_paths(self, paths):
         """Set paths that will be used as a dictionary and creats them if not already."""
@@ -153,7 +153,7 @@ class ParametricStudy:
 
 class ParametricStudies:
 
-    def __init__(self, EES_exe, EES_model, base_case_inputs, parametric_inputs, outputs):
+    def __init__(self, EES_exe, EES_model, base_case_inputs, parametric_inputs, outputs, run_id=None):
         self.EES_exe = EES_exe
         self.EES_model = check_model_path(EES_model)
         self.paths = self.set_paths(self.EES_model)
@@ -164,6 +164,7 @@ class ParametricStudies:
         self.parametric_studies = {}
         self.macro_string = ''
         self.results = {}
+        self.run_id = str(run_id) if run_id else str(round(time.time()))
 
     def set_paths(self, EES_model):
         """Set paths that will be used as a dictionary and creats them if not already."""
@@ -206,7 +207,8 @@ class ParametricStudies:
                     self.base_case_inputs,
                     variable,
                     parametric_input,
-                    self.outputs
+                    self.outputs,
+                    self.run_id
                 )
             })
             self.macro_string = self.parametric_studies[variable].handle_inputs(self.macro_string)
