@@ -4,7 +4,7 @@ sys.path.append(os.path.join(os.getcwd(), 'src'))
 import numpy as np
 import pandas as pd
 from ees.parametric import ParametricStudies
-from graphs_analise_dolar import DollarAnalisys
+from ..others.graphs_dolar import DollarAnalisys
 
 EES_exe = r'C:\Root\Universidade\EES\EES.exe'
 # EES_exe = r'C:\Root\Universidade\EES_antigo\EES.exe'

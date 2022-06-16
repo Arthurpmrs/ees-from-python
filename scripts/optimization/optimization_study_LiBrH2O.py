@@ -11,7 +11,7 @@ from ees.optimization_ga import GAOptimizationStudy
 from ees.optimization_graphs import OptGraph
 from ees.utilities import get_base_folder, add_folder
 from ees.optimization_param_analysis import OptParamAnalysis
-from graphs_default_param_analysis import DefaultParamAnalysisGraph
+from graphs_opt_param_analysis import DefaultParamAnalysisGraph
 from ees.utilities import get_base_folder
 
 

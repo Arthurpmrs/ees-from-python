@@ -11,8 +11,9 @@ from mpl_toolkits.axisartist.parasite_axes import HostAxes, ParasiteAxes
 
 class GraphsPaper:
 
-    def __init__(self, base_path, variable):
+    def __init__(self, base_path, variable, run_id):
         self.variable = variable
+        self.run_id = run_id
         self.base_path = base_path
         self.df = self.get_df()
         self.plots_folder = self.set_plots_folder()
@@ -20,13 +21,12 @@ class GraphsPaper:
 
     def get_df(self):
         filepath = os.path.join(
-            self.base_path, ".results", self.variable, "parametric_result.csv"
+            self.base_path, ".ParamAnalysis", self.run_id, ".results", self.variable, "parametric_result.csv"
         )
         return pd.read_csv(filepath, sep=";")
 
     def set_plots_folder(self):
-        # models_folder = os.path.dirname(self.base_path)
-        plots_folder = os.path.join(self.base_path, "paper")
+        plots_folder = os.path.join(self.base_path, ".ParamAnalysis", self.run_id, ".plots", "paper")
 
         if not os.path.exists(plots_folder):
             os.makedirs(plots_folder)
@@ -95,9 +95,10 @@ class GraphsPaper:
         colors = ["#0085cc", "#008702", "#d45800", "#8d00b0"]
         lss = ["solid", "dotted", "dashed", "dashdot"]
         # colors = ["b", "r", "g", "m"]
-        p1, = ax.plot(self.df[self.variable], self.df["EUF_sys"], colors[0], label=r"$EUF_{sys}$", ls=lss[0])
-        p2, = twin1.plot(self.df[self.variable], self.df["Exd_sys"], colors[2], label=r"$\dot{Ex}_{d,sys}$", ls=lss[1])
-        p3, = twin2.plot(self.df[self.variable], self.df["psi_sys_1"], colors[3], label=r"$\psi_{sys}$", ls=lss[2])
+        self.df["psi_partial"] = self.df["psi_partial"].apply(lambda x: 100 * x)
+        p1, = ax.plot(self.df[self.variable], self.df["EUF_sys"], colors[0], label=r"$EUF$", ls=lss[0])
+        p2, = twin1.plot(self.df[self.variable], self.df["Exd_partial"], colors[2], label=r"$\dot{Ex}_{d,p}$", ls=lss[1])
+        p3, = twin2.plot(self.df[self.variable], self.df["psi_partial"], colors[3], label=r"$\psi_{p}$", ls=lss[2])
         p4, = twin3.plot(self.df[self.variable], self.df["m_dot[38]"], colors[1], label=r"$\dot{m}_{38}$", ls=lss[3])
 
         offset = 0.01
@@ -106,12 +107,12 @@ class GraphsPaper:
             (1 + offset) * max(list(self.df["EUF_sys"])),
         )
         twin1.set_ylim(
-            (1 - offset) * min(list(self.df["Exd_sys"])),
-            (1 + offset) * max(list(self.df["Exd_sys"])),
+            (1 - offset) * min(list(self.df["Exd_partial"])),
+            (1 + offset) * max(list(self.df["Exd_partial"])),
         )
         twin2.set_ylim(
-            (1 - offset) * min(list(self.df["psi_sys_1"])),
-            (1 + offset) * max(list(self.df["psi_sys_1"])),
+            (1 - offset) * min(list(self.df["psi_partial"])),
+            (1 + offset) * max(list(self.df["psi_partial"])),
         )
         twin3.set_ylim(
             (1 - offset) * min(list(self.df["m_dot[38]"])),
@@ -119,10 +120,10 @@ class GraphsPaper:
         )
 
         ax.set_xlabel(var_display_str)
-        ax.set_ylabel(r"$EUF_{sys}$")
-        twin1.set_ylabel(r"$\dot{Ex}_{d,sys}$ (kW)")
-        twin2.set_ylabel(r"$\psi_{sys}$ (%)")
-        twin3.set_ylabel(r"$\dot{m}_{38} (kg \: s^{-1}$)")
+        ax.set_ylabel(r"$EUF$")
+        twin1.set_ylabel(r"$\dot{Ex}_{d,p}$ (kW)")
+        twin2.set_ylabel(r"$\psi_{p}$ (%)")
+        twin3.set_ylabel(r"$\dot{m}_{38} (kg \cdot s^{-1}$)")
 
         ax.yaxis.label.set_color(p1.get_color())
         twin1.yaxis.label.set_color(p2.get_color())
@@ -147,36 +148,36 @@ class GraphsPaper:
 
 def main():
     base_path = r"C:\Root\Drive\Unicamp\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise\trigeracao_LiBrH2O"
-
-    graph = GraphsPaper(base_path, 'T[22]')
+    run_id = "exergy_correction"
+    graph = GraphsPaper(base_path, 'T[22]', run_id)
     graph.base_plot(r'$ T_{22} $ ($^{\circ}$C)')
 
-    graph = GraphsPaper(base_path, 'T[19]')
+    graph = GraphsPaper(base_path, 'T[19]', run_id)
     graph.base_plot(r'$ T_{19} $ ($^{\circ}$C)')
 
-    graph = GraphsPaper(base_path, 'T[10]')
+    graph = GraphsPaper(base_path, 'T[10]', run_id)
     graph.base_plot(r'$ T_{10} $ ($^{\circ}$C)')
 
-    graph = GraphsPaper(base_path, 'T[13]')
+    graph = GraphsPaper(base_path, 'T[13]', run_id)
     graph.base_plot(r'$ T_{13} $ ($^{\circ}$C)')
 
-    graph = GraphsPaper(base_path, 'epsilon_hx')
+    graph = GraphsPaper(base_path, 'epsilon_hx', run_id)
     graph.base_plot(r'$ \varepsilon_{SHX} $')
 
-    graph = GraphsPaper(base_path, "MR")
+    graph = GraphsPaper(base_path, "MR", run_id)
     graph.base_plot("MR")
 
-    graph = GraphsPaper(base_path, 'T[34]')
+    graph = GraphsPaper(base_path, 'T[34]', run_id)
     graph.df.drop(index=6, inplace=True)
     graph.base_plot(r'$ T_{34} $ ($^{\circ}$C)')
 
-    graph = GraphsPaper(base_path, "X_biogas_ch4")
+    graph = GraphsPaper(base_path, "X_biogas_ch4", run_id)
     graph.base_plot(r'$ x_{CH_4} $')
 
-    graph = GraphsPaper(base_path, 'epsilon_d')
+    graph = GraphsPaper(base_path, 'epsilon_d', run_id)
     graph.base_plot(r'$ \varepsilon_{d} $')
 
-    graph = GraphsPaper(base_path, 'epsilon_u')
+    graph = GraphsPaper(base_path, 'epsilon_u', run_id)
     graph.df = graph.df.drop(index=2)
     graph.base_plot(r'$ \varepsilon_{h} $')
 
