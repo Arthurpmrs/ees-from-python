@@ -48,21 +48,38 @@ inputs = {
     'custo_agua': 13,
     'ir': 0.1
 }
-outputs = ['W_compressor', 'W_turbina', 'W_net', 'eta_brayton', 'Q_gerador', 'Q_absorvedor', 'Q_condensador', 'Q_evaporador',
-           'UA_gerador', 'UA_absorvedor', 'UA_condensador', 'UA_evaporador', 'COP_1', 'COP_2', 'v_dot[38]', 'v_dot[32]',
-           'm_dot[38]', 'm_dot[32]', 'Q_aquecedor', 'UA_aquecedor', 'RR', 'GOR', 'EUF_sys', 'Exd_compressor', 'psi_compressor',
-           'Exd_regenerador', 'psi_regenerador', 'Exd_cc', 'psi_cc', 'Exd_turbina', 'psi_turbina', 'Exd_brayton', 'psi_brayton',
-           'Exd_absorvedor', 'psi_absorvedor', 'Exd_gerador', 'psi_gerador', 'Exd_condensador', 'psi_condensador', 'Exd_evaporador',
-           'psi_evaporador', 'Exd_vs', 'psi_vs', 'Exd_vr', 'psi_vr', 'Exd_hx', 'psi_hx', 'Exd_bomba', 'psi_bomba', 'psi_sra',
-           'Exd_sra', 'Exd_umidificador', 'psi_umidificador', 'Exd_desumidificador', 'psi_desumidificador', 'Exd_aquecedor',
-           'psi_aquecedor', 'Exd_hdh', 'psi_hdh', 'psi_sys_1', 'psi_sys_2', 'Exd_sys', 'delta_compressor', 'delta_regenerador',
-           'delta_cc', 'delta_turbina', 'delta_absorvedor', 'delta_bomba', 'delta_vs', 'delta_vr', 'delta_hx', 'delta_gerador',
-           'delta_condensador', 'delta_evaporador', 'delta_umidificador', 'delta_desumidificador', 'delta_aquecedor',
-           'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh', 'payback_simples_1',
-           'payback_simples_2', 'payback_simples_3', 'cost_CAPEX_2019_real_trigen', 'cost_OPEX_real_anual', 'cost_prod',
-           'cost_CAPEX_2019_real_total', 'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS', 'cost_op_DA']
+# outputs = ['W_compressor', 'W_turbina', 'W_net', 'eta_brayton', 'Q_gerador', 'Q_absorvedor', 'Q_condensador', 'Q_evaporador',
+#            'UA_gerador', 'UA_absorvedor', 'UA_condensador', 'UA_evaporador', 'COP_1', 'COP_2', 'v_dot[38]', 'v_dot[32]',
+#            'm_dot[38]', 'm_dot[32]', 'Q_aquecedor', 'UA_aquecedor', 'RR', 'GOR', 'EUF_sys', 'Exd_compressor', 'psi_compressor',
+#            'Exd_regenerador', 'psi_regenerador', 'Exd_cc', 'psi_cc', 'Exd_turbina', 'psi_turbina', 'Exd_brayton', 'psi_brayton',
+#            'Exd_absorvedor', 'psi_absorvedor', 'Exd_gerador', 'psi_gerador', 'Exd_condensador', 'psi_condensador', 'Exd_evaporador',
+#            'psi_evaporador', 'Exd_vs', 'psi_vs', 'Exd_vr', 'psi_vr', 'Exd_hx', 'psi_hx', 'Exd_bomba', 'psi_bomba', 'psi_sra',
+#            'Exd_sra', 'Exd_umidificador', 'psi_umidificador', 'Exd_desumidificador', 'psi_desumidificador', 'Exd_aquecedor',
+#            'psi_aquecedor', 'Exd_hdh', 'psi_hdh', 'psi_sys_1', 'psi_sys_2', 'Exd_sys', 'delta_compressor', 'delta_regenerador',
+#            'delta_cc', 'delta_turbina', 'delta_absorvedor', 'delta_bomba', 'delta_vs', 'delta_vr', 'delta_hx', 'delta_gerador',
+#            'delta_condensador', 'delta_evaporador', 'delta_umidificador', 'delta_desumidificador', 'delta_aquecedor',
+#            'EUF_sys_turbina', 'EUF_sys_sra', 'EUF_sys_hdh', 'psi_sys_turbina', 'psi_sys_sra', 'psi_sys_hdh', 'payback_simples_1',
+#            'payback_simples_2', 'payback_simples_3', 'cost_CAPEX_2019_real_trigen', 'cost_OPEX_real_anual', 'cost_prod',
+#            'cost_CAPEX_2019_real_total', 'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS', 'cost_op_DA']
 
+outputs = ['W_net', 'unit_cost_turbine', 'num_of_turbines', 'cost_turbine', 'cost_2019_turbine', 'cost_gerador', 'cost_absorvedor',
+           'cost_condensador', 'cost_evaporador', 'cost_hx', 'cost_bomba', 'cost_vs', 'cost_vr', 'cost_2019_gerador', 'cost_sra',
+           'cost_2019_absorvedor', 'cost_2019_condensador', 'cost_2019_evaporador', 'cost_2019_hx', 'cost_2019_bomba', 'cost_2019_vs',
+           'cost_2019_vr', 'cost_2019_sra', 'A_evaporador', 'A_absorvedor', 'A_condensador', 'A_gerador', 'A_hx', 'W_bomba', 'm_dot[14]',
+           'm_dot[19]', 'cost_u', 'cost_d', 'cost_aquecedor', 'cost_fan', 'cost_2019_u', 'cost_2019_d', 'cost_2019_aquecedor', 'cost_2019_fan',
+           'm_dot[38]', 'A_aquecedor', 'v_dot[37]', 'cost_hdh', 'cost_2019_hdh', 'cost_CAPEX_2019_trigen', 'cost_CAPEX_2019_real_trigen',
+           'cost_2019_turbine_real', 'cost_2019_sra_real', 'cost_2019_hdh_real', 'cost_op_MP', 'cost_op_fuel', 'cost_op_DR',
+           'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS', 'cost_op_DA', 'cost_OPEX_real_anual', 'cost_prod_energia',
+           'cost_prod_agua', 'cost_prod_refrigeracao', 'cost_prod', 'payback_simples_2']
 casos = {
+    "caso_base": {
+        'T[10]': 35,
+        'T[19]': 40,
+        'T[13]': 85,
+        'T[22]': 5,
+        'MR': 2.5,
+        'T[34]': 80
+    },
     "corr_caso1": {
         "T[10]": 35.00605725132968,
         "T[19]": 35.009395493143664,

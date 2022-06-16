@@ -44,8 +44,8 @@ def param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
     paramgraphs = DefaultParamAnalysisGraph(EES_model, runID, results)
     paramgraphs.set_target_variable(**target_variable)
     paramgraphs.generate(lang="pt-BR")
-    paramgraphs.generate(lang="en-US")
-    paramgraphs.generate_log()
+    # paramgraphs.generate(lang="en-US")
+    # paramgraphs.generate_log()
 
 
 def main():
@@ -213,17 +213,17 @@ def main():
     # optimization(EES_exe, EES_model, target_variable, inputs, outputs, decision_variables, best_config, runID="_aprimorada_m38_LiBrH2O")
 
     # Análise de sensibilidade
-    # target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF_{sys} $", "problem": "max"}
-    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="new_analise_EUF_LiBrH2O")
+    target_variable = {"target_variable": "EUF_sys", "target_variable_display": r"$ EUF $", "problem": "max"}
+    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+                   decision_variables, base_config, params, runID="nc_new_analise_EUF_LiBrH2O")
 
-    # target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $", "problem": "max"}
-    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="new_analise_psi_LiBrH2O")
+    target_variable = {"target_variable": "psi_sys_1", "target_variable_display": r"$ \psi_{sys} $", "problem": "max"}
+    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+                   decision_variables, base_config, params, runID="nc_new_analise_psi_LiBrH2O")
 
-    # target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
-    # param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
-    #                decision_variables, base_config, params, runID="new_analise_m38_LiBrH2O")
+    target_variable = {"target_variable": "m_dot[38]", "target_variable_display": r"$ \dot{m}_{38} $", "problem": "max"}
+    param_analysis(EES_exe, EES_model, target_variable, inputs, outputs,
+                   decision_variables, base_config, params, runID="nc_new_analise_m38_LiBrH2O")
 
 
 if __name__ == "__main__":

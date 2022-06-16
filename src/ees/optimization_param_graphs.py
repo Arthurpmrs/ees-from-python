@@ -56,3 +56,5 @@ class OptParamGraphs:
 
         matplotlib.rcParams["ytick.labelsize"] = 15
         matplotlib.rcParams["xtick.labelsize"] = 15
+        matplotlib.rcParams["axes.prop_cycle"] = matplotlib.cycler('color', ['004c6d', '175e7f', '297191', '3984a3',
+                                                                             '4998b6', '5aadc8', '6bc1da', '7dd6ed', '8fecff'])

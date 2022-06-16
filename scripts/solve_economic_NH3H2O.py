@@ -64,11 +64,26 @@ inputs = {
 #            'Exd_rhx', 'epsilon_rhx', 'cost_CAPEX_2019_real_trigen',
 #            'cost_OPEX_real_anual', 'cost_prod', 'cost_CAPEX_2019_real_total', 'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS',
 #            'cost_op_DA', 'payback_simples_1', 'payback_simples_2', 'payback_simples_3']
+outputs = ['W_net', 'unit_cost_turbine', 'num_of_turbines', 'cost_turbine', 'cost_2019_turbine', 'cost_gerador', 'cost_absorvedor',
+           'cost_condensador', 'cost_evaporador', 'cost_shx', 'cost_rhx', 'cost_retificador', 'cost_bomba', 'cost_vs', 'cost_vr',
+           'cost_2019_gerador', 'cost_sra', 'cost_2019_absorvedor', 'cost_2019_condensador', 'cost_2019_evaporador', 'cost_2019_shx',
+           'cost_2019_rhx', 'cost_2019_retificador', 'cost_2019_bomba', 'cost_2019_vs', 'cost_2019_vr', 'cost_2019_sra', 'A_evaporador',
+           'A_absorvedor', 'A_condensador', 'A_gerador', 'A_shx', 'A_rhx', 'A_retificador', 'W_bomba', 'm_dot[14]',
+           'm_dot[19]', 'cost_u', 'cost_d', 'cost_aquecedor', 'cost_fan', 'cost_2019_u', 'cost_2019_d', 'cost_2019_aquecedor', 'cost_2019_fan',
+           'm_dot[38]', 'A_aquecedor', 'v_dot[37]', 'cost_hdh', 'cost_2019_hdh', 'cost_CAPEX_2019_trigen', 'cost_CAPEX_2019_real_trigen',
+           'cost_2019_turbine_real', 'cost_2019_sra_real', 'cost_2019_hdh_real', 'cost_op_MP', 'cost_op_fuel', 'cost_op_DR',
+           'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS', 'cost_op_DA', 'cost_OPEX_real_anual', 'cost_prod_energia',
+           'cost_prod_agua', 'cost_prod_refrigeracao', 'cost_prod', 'tpb2']
 
-# OBS: Não ia com muitos outputs. Igual ao problema que tinha que dividir no programa da otimização. O problema é o máximo de caracteres no comando macro.
-outputs = ['cost_CAPEX_2019_real_trigen', 'cost_OPEX_real_anual', 'cost_prod', 'cost_CAPEX_2019_real_total', 'cost_op_MR', 'cost_op_PR', 'cost_op_D', 'cost_op_IS',
-           'cost_op_DA', 'tpb1', 'tpb2', 'tpb3']
 casos = {
+    "caso_base": {
+        'T[10]': 35,
+        'T[19]': 40,
+        'T[13]': 85,
+        'T[22]': 5,
+        'MR': 2.5,
+        'T[34]': 80
+    },
     "corr_caso1": {
         "T[10]": 35.00503361381352,
         "T[19]": 35.00197668295226,
@@ -92,7 +107,7 @@ casos = {
         "T[22]": 5.994923574250652,
         "MR": 1.9840589454954465,
         "T[34]": 68.04985327128358
-    },
+    }
 }
 for caso, case_vars in casos.items():
     modified_input = {}

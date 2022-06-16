@@ -17,8 +17,8 @@ class GraphsHDHExd(Graphs):
         if lang in ["pt-BR", "pt_BR", "ptbr"]:
             titles = {
                 "exd": {
-                    "trigeracao_LiBrH2O": r"$ \dot{Ex}_{d} $ HDH - Trigeração (SRA: $ LiBr-H_2O $)",
-                    "trigeracao_NH3H2O": r"$ \dot{Ex}_{d} $ HDH - Trigeração (SRA: $ NH_3-H_2O $)",
+                    "trigeracao_LiBrH2O": r"$ \dot{Ex}_{d} $ HDH - Trigeração (SRA: $ LiBr/H_2O $)",
+                    "trigeracao_NH3H2O": r"$ \dot{Ex}_{d} $ HDH - Trigeração (SRA: $ NH_3/H_2O $)",
                 },
                 "labels": {
                     "sys": "HDH",
@@ -30,8 +30,8 @@ class GraphsHDHExd(Graphs):
         elif lang in ["en-US", "en_US", "enus"]:
             titles = {
                 "exd": {
-                    "trigeracao_LiBrH2O": r"$ \dot{Ex}_{d} $ HDH - Trigeneration (ARS: $ LiBr-H_2O)$",
-                    "trigeracao_NH3H2O": r"$ \dot{Ex}_{d} $ HDH - Trigeneration (ARS: $ NH_3-H_2O)$",
+                    "trigeracao_LiBrH2O": r"$ \dot{Ex}_{d} $ HDH - Trigeneration (ARS: $ LiBr/H_2O)$",
+                    "trigeracao_NH3H2O": r"$ \dot{Ex}_{d} $ HDH - Trigeneration (ARS: $ NH_3/H_2O)$",
                 },
                 "labels": {
                     "sys": "HDH",
@@ -73,31 +73,35 @@ class GraphsHDHExd(Graphs):
             ax.plot(
                 df[self.variable],
                 df["Exd_aquecedor"],
-                color="red",
+                color="#004c6d",
+                linestyle="-",
                 label=titles["labels"]["aq"],
             )
             ax.plot(
                 df[self.variable],
                 df["Exd_umidificador"],
-                color="blue",
+                color="#00608a",
+                linestyle="--",
                 label=titles["labels"]["umid"],
             )
             ax.plot(
                 df[self.variable],
                 df["Exd_desumidificador"],
-                color="green",
+                color="#0075a7",
+                linestyle=":",
                 label=titles["labels"]["desu"],
             )
             ax.plot(
                 df[self.variable],
                 df["Exd_hdh"],
-                color="magenta",
+                color="#008ac6",
+                linestyle="-.",
                 label=titles["labels"]["sys"],
             )
             ax.legend()
 
         fig.tight_layout()
         fig.savefig(
-            os.path.join(self.plots_folder, f"plot_{lang}_EXD-HDH_{self.variable}.svg"),
+            os.path.join(self.plots_folder, f"plot_{lang}_EXD-HDH_{self.variable}.pdf"),
         )
         fig.clf()

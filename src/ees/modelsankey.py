@@ -82,6 +82,8 @@ class ModelSankey:
         link_colors = [color.replace("1)", "0.4)") for color in node_colors]
 
         fig = go.Figure(data=[go.Sankey(
+            valueformat=".2f",
+            valuesuffix=" kW",
             arrangement="snap",
             node=dict(
                 pad=15,
@@ -96,20 +98,21 @@ class ModelSankey:
                 source=source,  # indices correspond to labels, eg A1, A2, A1, B1, ...
                 target=target,
                 value=value,
-                color=[link_colors[i] for i in source]
+                color=[link_colors[i] for i in source],
+                label=[f"{v:.2f} kW" for v in value]
             ))])
 
-        fig.update_layout(title_text=self.display_title, font_size=16, width=1200, height=500)
-        final_path = os.path.join(self.paths["data"], "sankey_diagram.svg")
+        fig.update_layout(title_text=self.display_title, font_size=14, width=1000, height=500, showlegend=True)
+        final_path = os.path.join(self.paths["data"], "sankey_diagram.pdf")
         fig.write_image(final_path)
         fig.show()
 
 
 def main():
-    EES_model = r'C:\Root\Drive\Unicamp\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise\trigeracao_NH3H2O.EES'
-    run_id = "caso1"
+    EES_model = r'C:\Users\55199\Meu Drive\[Unicamp]\[Dissertação]\01 - Algoritmo\Analise\trigeracao_LiBrH2O.EES'
+    run_id = "CASO BASE"
 
-    sankey = ModelSankey(EES_model, run_id, "Caso 1")
+    sankey = ModelSankey(EES_model, run_id, "Caso Base")
     sankey.load_exergy_data()
     sankey.generate()
 

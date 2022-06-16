@@ -17,12 +17,12 @@ class GraphsSysEffDecomp(Graphs):
         if lang in ["pt-BR", "pt_BR", "ptbr"]:
             titles = {
                 "EUFdecomp": {
-                    "trigeracao_LiBrH2O": r"Decomposição EUF - Trigeração (SRA: $ LiBr-H_2O $)",
-                    "trigeracao_NH3H2O": r"Decomposição EUF - Trigeração (SRA: $ NH_3-H_2O $)",
+                    "trigeracao_LiBrH2O": r"Decomposição EUF - Trigeração (SRA: $ LiBr/H_2O $)",
+                    "trigeracao_NH3H2O": r"Decomposição EUF - Trigeração (SRA: $ NH_3/H_2O $)",
                 },
                 "psidecomp": {
-                    "trigeracao_LiBrH2O": r"Decomposição $ \psi_{sys} $ - Trigeração (SRA: $ LiBr-H_2O $)",
-                    "trigeracao_NH3H2O": r"Decomposição $ \psi_{sys} $ - Trigeração (SRA: $ NH_3-H_2O $)",
+                    "trigeracao_LiBrH2O": r"Decomposição $ \psi_{sys} $ - Trigeração (SRA: $ LiBr/H_2O $)",
+                    "trigeracao_NH3H2O": r"Decomposição $ \psi_{sys} $ - Trigeração (SRA: $ NH_3/H_2O $)",
                 },
                 "labels": {
                     "sys": "Sistema",
@@ -37,12 +37,12 @@ class GraphsSysEffDecomp(Graphs):
         elif lang in ["en-US", "en_US", "enus"]:
             titles = {
                 "EUFdecomp": {
-                    "trigeracao_LiBrH2O": r"EUF Decomposition - Trigeneration (ARS: $ LiBr-H_2O)$",
-                    "trigeracao_NH3H2O": r"EUF Decomposition - Trigeneration (ARS: $ NH_3-H_2O)$",
+                    "trigeracao_LiBrH2O": r"EUF Decomposition - Trigeneration (ARS: $ LiBr/H_2O)$",
+                    "trigeracao_NH3H2O": r"EUF Decomposition - Trigeneration (ARS: $ NH_3/H_2O)$",
                 },
                 "psidecomp": {
-                    "trigeracao_LiBrH2O": r"$ \psi_{sys} $ Decomposition - Trigeneration (ARS: $LiBr-H_2O$)",
-                    "trigeracao_NH3H2O": r"$ \psi_{sys} $ Decomposition - Trigeneration (ARS: $NH_3-H_2O$)",
+                    "trigeracao_LiBrH2O": r"$ \psi_{sys} $ Decomposition - Trigeneration (ARS: $LiBr/H_2O$)",
+                    "trigeracao_NH3H2O": r"$ \psi_{sys} $ Decomposition - Trigeneration (ARS: $NH_3/H_2O$)",
                 },
                 "labels": {
                     "sys": "System",
@@ -69,6 +69,11 @@ class GraphsSysEffDecomp(Graphs):
             "labelweight": "bold",
         }
         matplotlib.rc("axes", **axes)
+
+        # matplotlib.rcParams["axes.prop_cycle"] = matplotlib.cycler(
+        #     color=["004c6d", "4c7c9b", "86b0cc", "c1e7ff"],
+        #     linestyle=["-", "--", ":", "-."]
+        # )
 
         graph_letters = ["a)", "b)"]
 
@@ -98,7 +103,7 @@ class GraphsSysEffDecomp(Graphs):
         fig1.tight_layout()
         fig1.savefig(
             os.path.join(
-                self.plots_folder, f"plot_{lang}_EUF-decomp_{self.variable}.svg"
+                self.plots_folder, f"plot_{lang}_EUF-decomp_{self.variable}.pdf"
             )
         )
         fig1.clf()
@@ -119,13 +124,15 @@ class GraphsSysEffDecomp(Graphs):
             (l1,) = ax.plot(
                 df[self.variable],
                 df["psi_sys_turbina"],
-                color="red",
+                color="#004c6d",
+                linestyle="-",
                 label=titles["labels"]["turbina"],
             )
             (l2,) = ax.plot(
                 df[self.variable],
                 df["psi_sys_1"],
-                color="magenta",
+                color="#00608a",
+                linestyle="--",
                 label=titles["labels"]["sys"],
             )
             ax2 = ax.twinx()
@@ -133,13 +140,15 @@ class GraphsSysEffDecomp(Graphs):
             (l3,) = ax2.plot(
                 df[self.variable],
                 df["psi_sys_sra"],
-                color="blue",
+                color="#0075a7",
+                linestyle=":",
                 label=titles["labels"]["sra"],
             )
             (l4,) = ax2.plot(
                 df[self.variable],
                 df["psi_sys_hdh"],
-                color="green",
+                color="#008ac6",
+                linestyle="-.",
                 label=titles["labels"]["hdh"],
             )
             ax2.grid(False)
@@ -148,7 +157,7 @@ class GraphsSysEffDecomp(Graphs):
         fig2.tight_layout()
         fig2.savefig(
             os.path.join(
-                self.plots_folder, f"plot_{lang}_psi-decomp_vs_{self.variable}.svg"
+                self.plots_folder, f"plot_{lang}_psi-decomp_vs_{self.variable}.pdf"
             ),
             # bbox_inches='tight'
         )
